@@ -1,0 +1,41 @@
+# Source files
+src/
+playground/
+*.config.js
+*.config.ts
+tsconfig*.json
+vite.config.ts
+eslint.config.js
+
+# Development files
+node_modules/
+.git/
+.gitignore
+.eslintrc*
+.prettierrc*
+.vscode/
+.idea/
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Build artifacts (keep dist/)
+*.log
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Misc
+.env*
+
+# Source maps (optional - remove line below to include)
+# *.map

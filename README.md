@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+# MultiCoyn SDK
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React SDK for integrating blockchain payment modals into your application.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎨 **Styled Components** - Pre-styled modal with scoped CSS (no conflicts)
+- ⚡ **Imperative API** - Simple `openPayment()` function
+- 🔧 **Configurable** - Global configuration via Provider
+- 📱 **Responsive** - Mobile-friendly design
+- 🎯 **TypeScript** - Full type support
+- 🔒 **Isolated** - CSS prefixed with `mc:` to prevent conflicts
 
-## React Compiler
+## Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install multicoyn-sdk
+# or
+yarn add multicoyn-sdk
+# or
+pnpm add multicoyn-sdk
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Quick Start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```tsx
+import { PaymentProvider, openPayment } from 'multicoyn-sdk';
+import 'multicoyn-sdk/styles';
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+function App() {
+  return (
+    <PaymentProvider
+      config={{
+        apiKey: 'your-api-key',
+        chain: 'ethereum',
+        environment: 'production',
+      }}
+    >
+      <button onClick={() => openPayment({
+        amount: '100',
+        currency: 'USDT',
+      })}>
+        Pay Now
+      </button>
+    </PaymentProvider>
+  );
+}
 ```
+
+## API Reference
+
+### PaymentProvider
+
+Wrap your app with `PaymentProvider` to configure the SDK globally.
+
+```tsx
+<PaymentProvider
+  config={{
+    apiKey: string;           // Required: Your API key
+    chain: string;            // Required: Blockchain network (e.g., 'ethereum', 'polygon')
+    environment?: 'production' | 'staging' | 'development';
+    onPaymentComplete?: (result: PaymentResult) => void;
+    onPaymentError?: (error: PaymentError) => void;
+  }}
+>
+  {children}
+</PaymentProvider>
+```
+
+### openPayment()
+
+Open the payment modal imperatively.
+
+```tsx
+openPayment({
+  amount: string;              // Required: Payment amount
+  currency: string;            // Required: Currency code (e.g., 'USDT', 'ETH')
+  recipient?: string;          // Optional: Recipient address
+  metadata?: Record<string, unknown>;
+  paymentMethods?: PaymentMethodOption[];
+  onComplete?: (result: PaymentResult) => void;
+  onError?: (error: PaymentError) => void;
+});
+```
+
+### closePayment()
+
+Close the payment modal programmatically.
+
+```tsx
+import { closePayment } from 'multicoyn-sdk';
+
+closePayment();
+```
+
+### usePaymentModal()
+
+React hook for controlling the payment modal.
+
+```tsx
+import { usePaymentModal } from 'multicoyn-sdk';
+
+function PayButton() {
+  const { open, close, isOpen } = usePaymentModal();
+
+  return (
+    <button onClick={() => open({ amount: '50', currency: 'USDT' })}>
+      {isOpen ? 'Processing...' : 'Pay $50'}
+    </button>
+  );
+}
+```
+
+## Types
+
+```typescript
+interface PaymentResult {
+  transactionHash?: string;
+  amount: string;
+  currency: string;
+  status: 'success' | 'failed' | 'pending';
+  paymentMethod?: string;
+}
+
+interface PaymentError {
+  code: string;
+  message: string;
+  details?: unknown;
+}
+
+interface PaymentMethodOption {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+  disabled?: boolean;
+}
+```
+
+## Styling
+
+The SDK uses Tailwind CSS with a `mc:` prefix to prevent conflicts with your application's styles. Import the styles once in your app:
+
+```tsx
+import 'multicoyn-sdk/styles';
+```
+
+## Requirements
+
+- React 18.0+ or React 19.0+
+- React DOM 18.0+ or 19.0+
+
+## License
+
+MIT

@@ -51,6 +51,17 @@ export interface PaymentMethodOption {
   disabled?: boolean;
 }
 
+export interface PaymentTokenOption {
+  id: string; // unique token id
+  symbol: string; // e.g. BTC, ETH
+  name: string; // token name
+  balance: number; // user balance in token units (human readable)
+  decimals: number; // token decimals for precise conversion
+  priceUSD?: number; // optional price in USD for conversion/validation
+  chain?: string; // optional chain identifier
+  icon?: string; // optional icon emoji/url
+}
+
 /**
  * Payment modal state
  */
@@ -70,6 +81,8 @@ export interface PaymentModalOptions {
   metadata?: Record<string, unknown>;
   /** Available payment methods */
   paymentMethods?: PaymentMethodOption[];
+  /** Optional list of user-owned tokens (for multi-token payments) */
+  paymentTokens?: PaymentTokenOption[];
   /** Override callbacks for this specific payment */
   onComplete?: (data: PaymentResult) => void;
   onError?: (error: PaymentError) => void;

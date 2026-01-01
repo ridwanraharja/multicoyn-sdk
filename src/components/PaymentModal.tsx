@@ -7,6 +7,7 @@ import type {
   PaymentModalOptions,
   PaymentModalState,
   PaymentResult,
+  PaymentTokenOption,
 } from "../types";
 import { LoadingState } from "./LoadingState";
 import { PaymentMethodSelector } from "./PaymentMethodSelector";
@@ -64,16 +65,40 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(
     null
   );
+  const [tokenAllocations, setTokenAllocations] = useState<
+    Record<string, number>
+  >({});
 
   // Get available payment methods
   const paymentMethods = options.paymentMethods || DEFAULT_PAYMENT_METHODS;
+  const paymentTokens: PaymentTokenOption[] = options.paymentTokens || [];
+
+  // Compute total USD of selected tokens (if price available)
+  const totalSelectedUSD = paymentTokens.reduce((acc, token) => {
+    const amt = tokenAllocations[token.id] ?? 0;
+    if (!token.priceUSD) return acc;
+    return acc + amt * token.priceUSD;
+  }, 0);
+
+  const requiredTotal = Number(options.amount) || 0;
 
   // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setState("selection");
-      setSelectedMethod(null);
+      // Default to wallet if tokens are provided, otherwise no selection
+      if (paymentTokens.length > 0) {
+        setSelectedMethod({
+          id: "wallet",
+          name: "Crypto Wallet",
+          icon: "👛",
+          description: "Use your tokens",
+        });
+      } else {
+        setSelectedMethod(null);
+      }
       setPaymentResult(null);
+      setTokenAllocations({});
     }
   }, [isOpen]);
 
@@ -109,6 +134,13 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
     setSelectedMethod(method);
   };
 
+  const handleUpdateTokenAllocation = (tokenId: string, amount: number) => {
+    setTokenAllocations((prev) => {
+      const next = { ...prev, [tokenId]: Math.max(amount, 0) };
+      return next;
+    });
+  };
+
   // Handle continue payment button
   const handleContinuePayment = async () => {
     if (!selectedMethod) return;
@@ -117,6 +149,23 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
     setState("loading");
 
     try {
+      // Validation: if using wallet/crypto with tokens and price data, ensure total covers required amount
+      if (
+        (selectedMethod.id === "wallet" || selectedMethod.id === "crypto") &&
+        paymentTokens.length > 0 &&
+        paymentTokens.some((t) => t.priceUSD !== undefined) &&
+        requiredTotal > 0
+      ) {
+        const hasPrice = paymentTokens.some((t) => t.priceUSD !== undefined);
+        if (hasPrice && totalSelectedUSD + 1e-9 < requiredTotal) {
+          throw new Error(
+            `Insufficient allocation: required ${requiredTotal} ${
+              options.currency
+            }, allocated ~$${totalSelectedUSD.toFixed(2)}`
+          );
+        }
+      }
+
       // Simulate payment processing
       // TODO: Replace with actual payment API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -128,6 +177,10 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
         status: "success",
         transactionHash: "0x" + Math.random().toString(16).substr(2, 64),
         paymentMethod: selectedMethod.id,
+        allocations:
+          selectedMethod.id === "wallet" || selectedMethod.id === "crypto"
+            ? tokenAllocations
+            : undefined,
       };
 
       setPaymentResult(result);
@@ -170,14 +223,34 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
               onSelect={handleMethodSelect}
               amount={options.amount}
               currency={options.currency}
+              tokens={paymentTokens}
+              tokenAllocations={tokenAllocations}
+              onUpdateTokenAllocation={handleUpdateTokenAllocation}
+              hideMethods={paymentTokens.length > 0}
             />
             <button
               onClick={handleContinuePayment}
-              disabled={!selectedMethod}
+              disabled={
+                !selectedMethod ||
+                // If wallet/crypto and tokens provided, require some allocation
+                ((selectedMethod.id === "wallet" ||
+                  selectedMethod.id === "crypto") &&
+                  paymentTokens.length > 0 &&
+                  Object.values(tokenAllocations).every((v) => v <= 0))
+              }
               className="mc:w-full mc:bg-blue-600 hover:mc:bg-blue-700 disabled:mc:bg-gray-300 disabled:mc:cursor-not-allowed mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200 mc:mt-4"
             >
               Continue Payment
             </button>
+            {(selectedMethod?.id === "wallet" ||
+              selectedMethod?.id === "crypto") &&
+              paymentTokens.length > 0 &&
+              paymentTokens.some((t) => t.priceUSD !== undefined) && (
+                <div className="mc:text-sm mc:text-gray-600 mc:mt-2">
+                  Selected value: ~${totalSelectedUSD.toFixed(2)} / Required:{" "}
+                  {requiredTotal} {options.currency}
+                </div>
+              )}
           </>
         );
 
@@ -232,7 +305,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
   const modalContent = (
     <div
       ref={backdropRef}
-      className="mc:fixed mc:inset-0 mc:z-[9999] mc:flex mc:items-center mc:justify-center mc:bg-black mc:bg-opacity-50 mc:backdrop-blur-sm"
+      className="mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-center mc:justify-center mc:bg-black/50 mc:backdrop-blur-sm"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"

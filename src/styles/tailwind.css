@@ -18,6 +18,10 @@
   --animate-fade-in: fade-in 0.2s ease-out;
   --animate-zoom-in-95: zoom-in-95 0.2s ease-out;
   --animate-bounce: bounce 1s infinite;
+
+  /* Custom colors */
+  --color-modal-background: #1e2136;
+  --color-button-primary: #562ed7;
 }
 
 /* Custom keyframes */
@@ -42,7 +46,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-25%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }

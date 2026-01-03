@@ -43,19 +43,19 @@ export function PaymentMethodSelector({
   return (
     <div className="mc:space-y-4">
       <div>
-        <h2 className="mc:text-2xl mc:font-bold mc:text-gray-900">
-          Select Payment Method
+        <h2 className="mc:text-2xl mc:font-bold mc:text-white">
+          Complete Payment
         </h2>
-        <p className="mc:text-gray-600 mc:mt-1">
+        <p className="mc:text-white/80 mc:mt-1">
           Choose how you want to pay (supports multi-token for wallets)
         </p>
       </div>
 
       {/* Amount Summary */}
-      <div className="mc:bg-gray-50 mc:rounded-lg mc:p-4 mc:space-y-2">
+      <div className="mc:bg-white/5 mc:rounded-lg mc:p-4 mc:space-y-2">
         <div className="mc:flex mc:justify-between mc:items-center">
-          <span className="mc:text-gray-600">Total Required</span>
-          <span className="mc:text-2xl mc:font-bold mc:text-gray-900">
+          <span className="mc:text-gray-400">Total Required</span>
+          <span className="mc:text-2xl mc:font-bold mc:text-white">
             {amount} {currency}
           </span>
         </div>
@@ -71,8 +71,8 @@ export function PaymentMethodSelector({
               disabled={method.disabled}
               className={`mc:w-full mc:p-4 mc:rounded-lg mc:border-2 mc:transition-all mc:duration-200 mc:text-left ${
                 selectedMethod?.id === method.id
-                  ? "mc:border-blue-600 mc:bg-blue-50"
-                  : "mc:border-gray-200 hover:mc:border-gray-300 mc:bg-white"
+                  ? "mc:border-purple-500 mc:bg-purple-500/20"
+                  : "mc:border-white/20 hover:mc:border-white/40 mc:bg-white/5"
               } ${
                 method.disabled
                   ? "mc:opacity-50 mc:cursor-not-allowed"
@@ -82,23 +82,23 @@ export function PaymentMethodSelector({
               <div className="mc:flex mc:items-center mc:justify-between">
                 <div className="mc:flex mc:items-center mc:gap-3">
                   {method.icon && (
-                    <div className="mc:w-10 mc:h-10 mc:flex mc:items-center mc:justify-center mc:bg-gray-100 mc:rounded-lg">
+                    <div className="mc:w-10 mc:h-10 mc:flex mc:items-center mc:justify-center mc:bg-white/10 mc:rounded-lg">
                       <span className="mc:text-xl">{method.icon}</span>
                     </div>
                   )}
                   <div>
-                    <div className="mc:font-semibold mc:text-gray-900">
+                    <div className="mc:font-semibold mc:text-white">
                       {method.name}
                     </div>
                     {method.description && (
-                      <div className="mc:text-sm mc:text-gray-500 mc:mt-1">
+                      <div className="mc:text-sm mc:text-gray-400 mc:mt-1">
                         {method.description}
                       </div>
                     )}
                   </div>
                 </div>
                 {selectedMethod?.id === method.id && (
-                  <div className="mc:w-5 mc:h-5 mc:rounded-full mc:bg-blue-600 mc:flex mc:items-center mc:justify-center">
+                  <div className="mc:w-5 mc:h-5 mc:rounded-full mc:bg-purple-500 mc:flex mc:items-center mc:justify-center">
                     <svg
                       className="mc:w-3 mc:h-3 mc:text-white"
                       fill="none"
@@ -124,14 +124,14 @@ export function PaymentMethodSelector({
       {selectedMethod?.id === "wallet" || selectedMethod?.id === "crypto" ? (
         <div className="mc:space-y-3">
           <div className="mc:flex mc:items-center mc:justify-between">
-            <h3 className="mc:text-lg mc:font-semibold mc:text-gray-900">
+            <h3 className="mc:text-lg mc:font-semibold mc:text-white">
               Use your tokens
             </h3>
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search token or chain..."
-              className="mc:w-48 mc:border mc:border-gray-200 mc:rounded-lg mc:px-3 mc:py-2 mc:text-sm focus:mc:outline-none focus:mc:ring-2 focus:mc:ring-blue-500"
+              className="mc:w-48 mc:border mc:border-white/20 mc:bg-white/5 mc:text-white mc:placeholder-gray-400 mc:rounded-lg mc:px-3 mc:py-2 mc:text-sm focus:mc:outline-none focus:mc:ring-2 focus:mc:ring-purple-500"
             />
           </div>
 
@@ -141,7 +141,7 @@ export function PaymentMethodSelector({
               return (
                 <div
                   key={token.id}
-                  className="mc:border mc:border-gray-200 mc:rounded-lg mc:p-3 mc:space-y-2"
+                  className="mc:border mc:border-white/20 mc:bg-white/5 mc:rounded-lg mc:p-3 mc:space-y-2"
                 >
                   <div className="mc:flex mc:items-center mc:justify-between mc:gap-2">
                     <div className="mc:flex mc:items-center mc:gap-2">
@@ -151,19 +151,19 @@ export function PaymentMethodSelector({
                         </span>
                       )}
                       <div>
-                        <div className="mc:font-semibold mc:text-gray-900">
+                        <div className="mc:font-semibold mc:text-white">
                           {token.symbol}{" "}
-                          <span className="mc:text-sm mc:text-gray-500">
+                          <span className="mc:text-sm mc:text-gray-400">
                             {token.name}
                           </span>
                         </div>
-                        <div className="mc:text-xs mc:text-gray-500">
+                        <div className="mc:text-xs mc:text-gray-400">
                           Balance: {token.balance} {token.symbol}
                         </div>
                       </div>
                     </div>
                     {token.priceUSD !== undefined && (
-                      <div className="mc:text-right mc:text-xs mc:text-gray-500">
+                      <div className="mc:text-right mc:text-xs mc:text-gray-400">
                         ~${token.priceUSD.toFixed(4)} / {token.symbol}
                       </div>
                     )}
@@ -182,7 +182,7 @@ export function PaymentMethodSelector({
                           Number(e.target.value)
                         )
                       }
-                      className="mc:flex-1 mc:accent-blue-600"
+                      className="mc:flex-1 mc:accent-purple-500"
                     />
                     <input
                       type="number"
@@ -196,12 +196,12 @@ export function PaymentMethodSelector({
                           Number(e.target.value)
                         )
                       }
-                      className="mc:w-28 mc:border mc:border-gray-200 mc:rounded-lg mc:px-2 mc:py-1 mc:text-sm focus:mc:outline-none focus:mc:ring-2 focus:mc:ring-blue-500"
+                      className="mc:w-28 mc:border mc:border-white/20 mc:bg-white/5 mc:text-white mc:rounded-lg mc:px-2 mc:py-1 mc:text-sm focus:mc:outline-none focus:mc:ring-2 focus:mc:ring-purple-500"
                     />
                   </div>
 
                   {token.priceUSD !== undefined && (
-                    <div className="mc:text-xs mc:text-gray-600">
+                    <div className="mc:text-xs mc:text-gray-400">
                       ≈ ${(value * token.priceUSD).toFixed(2)} USD
                     </div>
                   )}
@@ -210,7 +210,7 @@ export function PaymentMethodSelector({
             })}
 
             {filteredTokens.length === 0 && (
-              <div className="mc:text-sm mc:text-gray-500 mc:text-center mc:py-4">
+              <div className="mc:text-sm mc:text-gray-400 mc:text-center mc:py-4">
                 No tokens found
               </div>
             )}

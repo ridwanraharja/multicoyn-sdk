@@ -228,29 +228,75 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
               onUpdateTokenAllocation={handleUpdateTokenAllocation}
               hideMethods={paymentTokens.length > 0}
             />
-            <button
-              onClick={handleContinuePayment}
-              disabled={
+            {/* Validation: must be exactly 100% of required amount */}
+            {(() => {
+              const isWalletOrCrypto =
+                selectedMethod?.id === "wallet" ||
+                selectedMethod?.id === "crypto";
+              const hasTokens = paymentTokens.length > 0;
+              const hasPriceData = paymentTokens.some(
+                (t) => t.priceUSD !== undefined
+              );
+              const tolerance = 0.01; // $0.01 tolerance for rounding
+              const isExactAmount =
+                Math.abs(totalSelectedUSD - requiredTotal) <= tolerance;
+              const isUnderAmount =
+                totalSelectedUSD < requiredTotal - tolerance;
+              const isOverAmount = totalSelectedUSD > requiredTotal + tolerance;
+
+              const isDisabled =
                 !selectedMethod ||
-                // If wallet/crypto and tokens provided, require some allocation
-                ((selectedMethod.id === "wallet" ||
-                  selectedMethod.id === "crypto") &&
-                  paymentTokens.length > 0 &&
-                  Object.values(tokenAllocations).every((v) => v <= 0))
-              }
-              className="mc:w-full mc:bg-blue-600 hover:mc:bg-blue-700 disabled:mc:bg-gray-300 disabled:mc:cursor-not-allowed mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200 mc:mt-4"
-            >
-              Continue Payment
-            </button>
-            {(selectedMethod?.id === "wallet" ||
-              selectedMethod?.id === "crypto") &&
-              paymentTokens.length > 0 &&
-              paymentTokens.some((t) => t.priceUSD !== undefined) && (
-                <div className="mc:text-sm mc:text-gray-600 mc:mt-2">
-                  Selected value: ~${totalSelectedUSD.toFixed(2)} / Required:{" "}
-                  {requiredTotal} {options.currency}
-                </div>
-              )}
+                (isWalletOrCrypto &&
+                  hasTokens &&
+                  hasPriceData &&
+                  !isExactAmount);
+
+              return (
+                <>
+                  <button
+                    onClick={handleContinuePayment}
+                    disabled={isDisabled}
+                    className="mc:w-full mc:bg-purple-600 hover:mc:bg-purple-700 disabled:mc:bg-gray-600 disabled:mc:cursor-not-allowed mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200 mc:mt-4"
+                  >
+                    Pay with MultiCoyn
+                  </button>
+                  {isWalletOrCrypto && hasTokens && hasPriceData && (
+                    <div className="mc:mt-2">
+                      {isUnderAmount && (
+                        <div className="mc:text-sm mc:text-yellow-400">
+                          ⚠️ Insufficient: ${totalSelectedUSD.toFixed(2)} / $
+                          {requiredTotal.toFixed(2)} required (
+                          {((totalSelectedUSD / requiredTotal) * 100).toFixed(
+                            0
+                          )}
+                          %)
+                        </div>
+                      )}
+                      {isOverAmount && (
+                        <div className="mc:text-sm mc:text-red-400">
+                          ⚠️ Exceeds limit: ${totalSelectedUSD.toFixed(2)} / $
+                          {requiredTotal.toFixed(2)} required (
+                          {((totalSelectedUSD / requiredTotal) * 100).toFixed(
+                            0
+                          )}
+                          %)
+                        </div>
+                      )}
+                      {isExactAmount && totalSelectedUSD > 0 && (
+                        <div className="mc:text-sm mc:text-green-400">
+                          ✓ Ready to pay: ${totalSelectedUSD.toFixed(2)} (100%)
+                        </div>
+                      )}
+                      {totalSelectedUSD === 0 && (
+                        <div className="mc:text-sm mc:text-gray-400">
+                          Select tokens to pay ${requiredTotal.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </>
         );
 
@@ -265,9 +311,9 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
       case "error":
         return (
           <div className="mc:flex mc:flex-col mc:items-center mc:justify-center mc:py-8 mc:space-y-4">
-            <div className="mc:w-16 mc:h-16 mc:bg-red-100 mc:rounded-full mc:flex mc:items-center mc:justify-center">
+            <div className="mc:w-16 mc:h-16 mc:bg-red-500/20 mc:rounded-full mc:flex mc:items-center mc:justify-center">
               <svg
-                className="mc:w-10 mc:h-10 mc:text-red-600"
+                className="mc:w-10 mc:h-10 mc:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -281,16 +327,16 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
               </svg>
             </div>
             <div className="mc:text-center">
-              <h3 className="mc:text-2xl mc:font-bold mc:text-gray-900 mc:mb-2">
+              <h3 className="mc:text-2xl mc:font-bold mc:text-white mc:mb-2">
                 Payment Failed
               </h3>
-              <p className="mc:text-gray-600">
+              <p className="mc:text-gray-400">
                 There was an error processing your payment
               </p>
             </div>
             <button
               onClick={onClose}
-              className="mc:w-full mc:bg-gray-600 hover:mc:bg-gray-700 mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200"
+              className="mc:w-full mc:bg-white/10 hover:mc:bg-white/20 mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200"
             >
               Close
             </button>
@@ -305,7 +351,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
   const modalContent = (
     <div
       ref={backdropRef}
-      className="mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-center mc:justify-center mc:bg-black/50 mc:backdrop-blur-sm"
+      className="mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-center mc:justify-center mc:bg-black/30 mc:backdrop-blur-sm"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -313,7 +359,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
     >
       <div
         ref={modalRef}
-        className={`mc:relative mc:bg-white mc:rounded-lg mc:shadow-xl mc:max-w-md mc:w-full mc:mx-4 mc:p-6 mc:transition-all mc:duration-300 ${
+        className={`mc:relative mc:border mc:border-white/40 mc:bg-modal-background mc:rounded-lg mc:shadow-xl mc:max-w-xl mc:w-full mc:mx-4 mc:p-6 mc:transition-all mc:duration-300 ${
           state === "selection" ? "mc:animate-in mc:fade-in mc:zoom-in-95" : ""
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -350,7 +396,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
             environment &&
             environment !== "production" && (
               <div className="mc:text-center">
-                <span className="mc:inline-block mc:bg-yellow-100 mc:text-yellow-800 mc:text-xs mc:font-semibold mc:px-2 mc:py-1 mc:rounded">
+                <span className="mc:inline-block mc:bg-yellow-500/20 mc:text-yellow-400 mc:text-xs mc:font-semibold mc:px-2 mc:py-1 mc:rounded">
                   {environment.toUpperCase()}
                 </span>
               </div>

@@ -211,93 +211,210 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
 
   if (!isOpen) return null;
 
+  // Get selected tokens with allocations > 0
+  const selectedTokens = paymentTokens.filter(
+    (token) => (tokenAllocations[token.id] ?? 0) > 0
+  );
+
   // Render content based on state
   const renderContent = () => {
     switch (state) {
       case "selection":
         return (
-          <>
-            <PaymentMethodSelector
-              methods={paymentMethods}
-              selectedMethod={selectedMethod}
-              onSelect={handleMethodSelect}
-              amount={options.amount}
-              currency={options.currency}
-              tokens={paymentTokens}
-              tokenAllocations={tokenAllocations}
-              onUpdateTokenAllocation={handleUpdateTokenAllocation}
-              hideMethods={paymentTokens.length > 0}
-            />
-            {/* Validation: must be exactly 100% of required amount */}
-            {(() => {
-              const isWalletOrCrypto =
-                selectedMethod?.id === "wallet" ||
-                selectedMethod?.id === "crypto";
-              const hasTokens = paymentTokens.length > 0;
-              const hasPriceData = paymentTokens.some(
-                (t) => t.priceUSD !== undefined
-              );
-              const tolerance = 0.01; // $0.01 tolerance for rounding
-              const isExactAmount =
-                Math.abs(totalSelectedUSD - requiredTotal) <= tolerance;
-              const isUnderAmount =
-                totalSelectedUSD < requiredTotal - tolerance;
-              const isOverAmount = totalSelectedUSD > requiredTotal + tolerance;
+          <div className="mc:grid mc:grid-cols-1 mc:lg:grid-cols-3 mc:gap-6">
+            {/* Left Side - Token Selection */}
+            <div className="mc:space-y-4 mc:col-span-1 mc:lg:col-span-2">
+              <PaymentMethodSelector
+                methods={paymentMethods}
+                selectedMethod={selectedMethod}
+                onSelect={handleMethodSelect}
+                amount={options.amount}
+                currency={options.currency}
+                tokens={paymentTokens}
+                tokenAllocations={tokenAllocations}
+                onUpdateTokenAllocation={handleUpdateTokenAllocation}
+                hideMethods={paymentTokens.length > 0}
+              />
+            </div>
 
-              const isDisabled =
-                !selectedMethod ||
-                (isWalletOrCrypto &&
-                  hasTokens &&
-                  hasPriceData &&
-                  !isExactAmount);
+            {/* Right Side - Payment Summary */}
+            <div className="mc:space-y-4 mc:col-span-1 mc:lg:col-span-1">
+              <div className="mc:bg-white/5 mc:border mc:border-white/20 mc:rounded-lg mc:p-5">
+                <h3 className="mc:text-lg mc:font-bold mc:text-white mc:mb-4">
+                  Payment Summary
+                </h3>
 
-              return (
-                <>
-                  <button
-                    onClick={handleContinuePayment}
-                    disabled={isDisabled}
-                    className="mc:w-full mc:bg-purple-600 hover:mc:bg-purple-700 disabled:mc:bg-gray-600 disabled:mc:cursor-not-allowed mc:text-white mc:font-semibold mc:py-3 mc:px-4 mc:rounded-lg mc:transition-colors mc:duration-200 mc:mt-4"
+                {/* Product Info */}
+                {typeof options.metadata?.productName === "string" && (
+                  <div className="mc:flex mc:justify-between mc:items-center mc:py-2 mc:border-b mc:border-white/10">
+                    <span className="mc:text-gray-400">
+                      {options.metadata.productName}
+                    </span>
+                    <span className="mc:text-white mc:font-medium">
+                      ${requiredTotal.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Fee (placeholder) */}
+                <div className="mc:flex mc:justify-between mc:items-center mc:py-2 mc:border-b mc:border-white/10">
+                  <span className="mc:text-gray-400">Fee</span>
+                  <span className="mc:text-white mc:font-medium">$0.30</span>
+                </div>
+
+                {/* Total Payment */}
+                <div className="mc:flex mc:justify-between mc:items-center mc:py-3">
+                  <span className="mc:text-gray-400">Total Payment</span>
+                  <span className="mc:text-2xl mc:font-bold mc:text-white">
+                    ${(requiredTotal + 0.3).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Selected Tokens Detail */}
+              <div className="mc:bg-white/5 mc:border mc:border-white/20 mc:rounded-lg mc:p-5">
+                <div className="mc:flex mc:items-center mc:justify-between mc:mb-4">
+                  <div className="mc:flex mc:items-center mc:gap-2">
+                    <span className="mc:text-gray-400 mc:text-sm">ⓘ</span>
+                    <span className="mc:text-gray-400 mc:text-sm">
+                      Set the coins amount until 100%
+                    </span>
+                  </div>
+                  <div
+                    className={`mc:px-3 mc:py-1 mc:rounded-full mc:text-sm mc:font-medium ${
+                      Math.abs(totalSelectedUSD - requiredTotal) <= 0.01
+                        ? "mc:bg-green-500/20 mc:text-green-400"
+                        : totalSelectedUSD > requiredTotal
+                        ? "mc:bg-red-500/20 mc:text-red-400"
+                        : "mc:bg-purple-500/20 mc:text-purple-400"
+                    }`}
                   >
-                    Pay with MultiCoyn
-                  </button>
-                  {isWalletOrCrypto && hasTokens && hasPriceData && (
-                    <div className="mc:mt-2">
-                      {isUnderAmount && (
-                        <div className="mc:text-sm mc:text-yellow-400">
-                          ⚠️ Insufficient: ${totalSelectedUSD.toFixed(2)} / $
-                          {requiredTotal.toFixed(2)} required (
-                          {((totalSelectedUSD / requiredTotal) * 100).toFixed(
-                            0
-                          )}
-                          %)
+                    {requiredTotal > 0
+                      ? `${Math.min(
+                          Math.round((totalSelectedUSD / requiredTotal) * 100),
+                          999
+                        )}/100%`
+                      : "0/100%"}
+                  </div>
+                </div>
+
+                {/* Token List */}
+                <div className="mc:space-y-3">
+                  {selectedTokens.length > 0 ? (
+                    selectedTokens.map((token) => {
+                      const amount = tokenAllocations[token.id] ?? 0;
+                      const valueUSD = amount * (token.priceUSD || 0);
+                      const percentage =
+                        requiredTotal > 0
+                          ? (valueUSD / requiredTotal) * 100
+                          : 0;
+
+                      return (
+                        <div
+                          key={token.id}
+                          className="mc:flex mc:items-center mc:gap-3"
+                        >
+                          <div className="mc:flex mc:items-center mc:gap-2 mc:min-w-32">
+                            {token.icon && (
+                              <span className="mc:text-xl">{token.icon}</span>
+                            )}
+                            <div>
+                              <div className="mc:font-medium mc:text-white mc:text-sm">
+                                {token.name}
+                              </div>
+                              <div className="mc:text-xs mc:text-gray-400">
+                                {amount.toFixed(4)} {token.symbol}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mc:flex-1 mc:h-2 mc:bg-white/10 mc:rounded-full mc:overflow-hidden">
+                            <div
+                              className="mc:h-full mc:bg-purple-500 mc:rounded-full mc:transition-all mc:duration-300"
+                              style={{
+                                width: `${Math.min(percentage, 100)}%`,
+                              }}
+                            />
+                          </div>
+                          <div className="mc:text-right mc:min-w-12">
+                            <span className="mc:text-white mc:font-medium mc:text-sm">
+                              {percentage.toFixed(0)}%
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      {isOverAmount && (
-                        <div className="mc:text-sm mc:text-red-400">
-                          ⚠️ Exceeds limit: ${totalSelectedUSD.toFixed(2)} / $
-                          {requiredTotal.toFixed(2)} required (
-                          {((totalSelectedUSD / requiredTotal) * 100).toFixed(
-                            0
-                          )}
-                          %)
-                        </div>
-                      )}
-                      {isExactAmount && totalSelectedUSD > 0 && (
-                        <div className="mc:text-sm mc:text-green-400">
-                          ✓ Ready to pay: ${totalSelectedUSD.toFixed(2)} (100%)
-                        </div>
-                      )}
-                      {totalSelectedUSD === 0 && (
-                        <div className="mc:text-sm mc:text-gray-400">
-                          Select tokens to pay ${requiredTotal.toFixed(2)}
-                        </div>
-                      )}
+                      );
+                    })
+                  ) : (
+                    <div className="mc:text-center mc:py-6 mc:text-gray-500">
+                      <p className="mc:text-sm">No tokens selected yet</p>
+                      <p className="mc:text-xs mc:mt-1">
+                        Use the sliders on the left to allocate tokens
+                      </p>
                     </div>
                   )}
-                </>
-              );
-            })()}
-          </>
+                </div>
+              </div>
+
+              {/* Payment Button & Validation */}
+              {(() => {
+                const isWalletOrCrypto =
+                  selectedMethod?.id === "wallet" ||
+                  selectedMethod?.id === "crypto";
+                const hasTokens = paymentTokens.length > 0;
+                const hasPriceData = paymentTokens.some(
+                  (t) => t.priceUSD !== undefined
+                );
+                const tolerance = 0.01;
+                const isExactAmount =
+                  Math.abs(totalSelectedUSD - requiredTotal) <= tolerance;
+                const isUnderAmount =
+                  totalSelectedUSD < requiredTotal - tolerance;
+                const isOverAmount =
+                  totalSelectedUSD > requiredTotal + tolerance;
+
+                const isDisabled =
+                  !selectedMethod ||
+                  (isWalletOrCrypto &&
+                    hasTokens &&
+                    hasPriceData &&
+                    !isExactAmount);
+
+                return (
+                  <>
+                    <button
+                      onClick={handleContinuePayment}
+                      disabled={isDisabled}
+                      className="mc:w-full mc:bg-purple-600 hover:mc:bg-purple-700 disabled:mc:bg-gray-600 disabled:mc:cursor-not-allowed mc:text-white mc:font-semibold mc:py-4 mc:px-4 mc:rounded-xl mc:transition-colors mc:duration-200"
+                    >
+                      Pay with MultiCoyn
+                    </button>
+                    {isWalletOrCrypto && hasTokens && hasPriceData && (
+                      <div className="mc:text-center mc:mt-2">
+                        {isUnderAmount && (
+                          <div className="mc:text-sm mc:text-yellow-400">
+                            ⚠️ Need $
+                            {(requiredTotal - totalSelectedUSD).toFixed(2)} more
+                            to complete payment
+                          </div>
+                        )}
+                        {isOverAmount && (
+                          <div className="mc:text-sm mc:text-red-400">
+                            ⚠️ Reduce $
+                            {(totalSelectedUSD - requiredTotal).toFixed(2)} to
+                            match exact amount
+                          </div>
+                        )}
+                        {isExactAmount && totalSelectedUSD > 0 && (
+                          <div className="mc:text-sm mc:text-green-400">
+                            ✓ Ready to pay
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
         );
 
       case "loading":
@@ -351,7 +468,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
   const modalContent = (
     <div
       ref={backdropRef}
-      className="mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-center mc:justify-center mc:bg-black/30 mc:backdrop-blur-sm"
+      className="mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-start sm:mc:items-center mc:justify-center mc:bg-black/30 mc:backdrop-blur-sm mc:overflow-y-auto mc:py-4"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -359,7 +476,7 @@ export function PaymentModal({ isOpen, onClose, options }: PaymentModalProps) {
     >
       <div
         ref={modalRef}
-        className={`mc:relative mc:border mc:border-white/40 mc:bg-modal-background mc:rounded-lg mc:shadow-xl mc:max-w-xl mc:w-full mc:mx-4 mc:p-6 mc:transition-all mc:duration-300 ${
+        className={`mc:relative mc:border mc:border-white/40 mc:bg-modal-background mc:rounded-lg mc:shadow-xl mc:max-w-7xl mc:w-full mc:mx-4 mc:my-auto mc:p-4 sm:mc:p-6 mc:transition-all mc:duration-300 mc:max-h-none ${
           state === "selection" ? "mc:animate-in mc:fade-in mc:zoom-in-95" : ""
         }`}
         onClick={(e) => e.stopPropagation()}

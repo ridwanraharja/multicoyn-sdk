@@ -47,7 +47,7 @@ export function PaymentModal({
   useEffect(() => {
     if (!isOpen) {
       // Reset state when modal closes
-      setView("success");
+      setView("form");
       setProgress(0);
       setTransactionId("");
     }

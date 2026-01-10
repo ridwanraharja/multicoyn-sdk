@@ -283,6 +283,18 @@
         "internalType": "uint256[]",
         "name": "amounts",
         "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "externalCallSuccess",
+        "type": "bool"
       }
     ],
     "name": "PaymentExecuted",
@@ -610,6 +622,16 @@
             "internalType": "uint256",
             "name": "timestamp",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           }
         ],
         "internalType": "struct IPaymentRouter.Payment",
@@ -717,6 +739,16 @@
         "internalType": "bool",
         "name": "settleInIDR",
         "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "callData",
+        "type": "bytes"
       }
     ],
     "name": "pay",

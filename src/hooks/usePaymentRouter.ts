@@ -25,6 +25,8 @@ interface PaymentParams {
   tokens: Token[];
   totalAmountUSD: number;
   settleInIDR: boolean;
+  target?: `0x${string}`;
+  callData?: `0x${string}`;
 }
 
 export function usePaymentRouter() {
@@ -124,6 +126,8 @@ export function usePaymentRouter() {
     tokens,
     totalAmountUSD,
     settleInIDR,
+    target,
+    callData,
   }: PaymentParams) => {
     if (!address) {
       throw new Error("Wallet not connected");
@@ -185,6 +189,10 @@ export function usePaymentRouter() {
 
     const productPriceUSD = BigInt(Math.floor(totalAmountUSD * USD_SCALE));
 
+    // Default values for optional parameters
+    const targetAddress = target || "0x0000000000000000000000000000000000000000";
+    const callDataBytes = callData || "0x";
+
     return await writeContractAsync({
       address: CONTRACTS.PAYMENT_ROUTER,
       abi: PAYMENT_ROUTER_ABI,
@@ -195,6 +203,8 @@ export function usePaymentRouter() {
         amounts,
         productPriceUSD,
         settleInIDR,
+        targetAddress,
+        callDataBytes,
       ],
       value: nativeValue,
     });

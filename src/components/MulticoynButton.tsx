@@ -62,7 +62,7 @@ export function MulticoynButton({
     // Handle tuple [price, timestamp]
     if (Array.isArray(idrxPriceData) && idrxPriceData.length >= 1) {
       const price = idrxPriceData[0];
-      if (typeof price === 'bigint') {
+      if (typeof price === "bigint") {
         return Number(price) / USD_SCALE;
       }
     }
@@ -157,6 +157,11 @@ export function MulticoynButton({
         tokens: tokens.filter((t) => t.percentage > 0),
       };
       onPaymentComplete?.(result);
+
+      // const timer = setTimeout(() => {
+      //   setIsModalOpen(false);
+      // }, 3000);
+      // return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConfirmed, hash]);

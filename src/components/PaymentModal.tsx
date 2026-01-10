@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   CloseIcon,
   SearchIcon,
@@ -236,8 +237,8 @@ export function PaymentModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={view === "form" ? onClose : undefined}
@@ -448,4 +449,6 @@ export function PaymentModal({
       )}
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -238,7 +238,7 @@ export function PaymentModal({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="multicoyn-sdk fixed inset-0 z-[9999] flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={view === "form" ? onClose : undefined}

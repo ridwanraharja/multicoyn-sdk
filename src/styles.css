@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* Tailwind Theme Configuration */
+@theme {
+  /* 4 Main Background Colors (Dark Theme - from Figma) */
+  --color-dark-1: #12151e;
+  --color-dark-2: #1e2136;
+  --color-dark-3: #191c34;
+  --color-dark-4: #2c304f;
+
+  /* Accent colors */
+  --color-primary: #fff;
+  --color-secondary: #562ed7;
+  --color-cyan: #00c3ff;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Text colors */
+  --color-white: #ffffff;
+  --color-white-75: rgba(255, 255, 255, 0.75);
+  --color-white-50: rgba(255, 255, 255, 0.5);
+
+  /* Border */
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  /* Gradient */
+  --color-gradient-1: #0d9488;
+  --color-gradient-2: #562ed7;
+
+  /* Light theme */
+  --color-light-1: #f9fafb;
+  --color-light-2: #ffffff;
+  --color-light-3: #f3f4f6;
+  --color-light-4: #e5e7eb;
+  --color-dark: #111827;
+  --color-gray: #4b5563;
+
+  /* Font */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* Animations */
+  --animate-slide-in-right: multicoyn-slide-in-right 0.3s ease-out forwards;
+  --animate-fade-in: multicoyn-fade-in 0.3s ease-out forwards;
+}
+
+/* SDK Scoped Styles - Menggunakan prefix .multicoyn-sdk untuk isolasi */
+.multicoyn-sdk {
+  /* 4 Main Background Colors (Dark Theme - from Figma) */
+  --multicoyn-dark-1: #12151e;
+  --multicoyn-dark-2: #1e2136;
+  --multicoyn-dark-3: #191c34;
+  --multicoyn-dark-4: #2c304f;
+
+  /* Accent colors */
+  --multicoyn-primary: #fff;
+  --multicoyn-secondary: #562ed7;
+  --multicoyn-cyan: #00c3ff;
+  --multicoyn-warning: #f59e0b;
+  --multicoyn-danger: #ef4444;
+
+  /* Text colors */
+  --multicoyn-white: #ffffff;
+  --multicoyn-white-75: rgba(255, 255, 255, 0.75);
+  --multicoyn-white-50: rgba(255, 255, 255, 0.5);
+
+  /* Border */
+  --multicoyn-border: rgba(255, 255, 255, 0.08);
+
+  /* Gradient */
+  --multicoyn-gradient-1: #0d9488;
+  --multicoyn-gradient-2: #562ed7;
+
+  /* Light theme */
+  --multicoyn-light-1: #f9fafb;
+  --multicoyn-light-2: #ffffff;
+  --multicoyn-light-3: #f3f4f6;
+  --multicoyn-light-4: #e5e7eb;
+  --multicoyn-dark: #111827;
+  --multicoyn-gray: #4b5563;
+
+  /* Font */
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Radius */
+  --multicoyn-radius-sm: 0.375rem;
+  --multicoyn-radius-md: 0.5rem;
+  --multicoyn-radius-lg: 0.75rem;
+  --multicoyn-radius-xl: 1rem;
+  --multicoyn-radius-2xl: 1.25rem;
+  --multicoyn-radius-full: 9999px;
+}
+
+.multicoyn-sdk * {
+  box-sizing: border-box;
+}
+
+/* Scrollbar styles untuk modal SDK */
+.multicoyn-sdk ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.multicoyn-sdk ::-webkit-scrollbar-track {
+  background: var(--multicoyn-dark-2);
+}
+
+.multicoyn-sdk ::-webkit-scrollbar-thumb {
+  background: var(--multicoyn-dark-4);
+  border-radius: var(--multicoyn-radius-full);
+}
+
+/* Animation */
+@keyframes multicoyn-slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.multicoyn-animate-slide-in-right {
+  animation: multicoyn-slide-in-right 0.3s ease-out forwards;
+}
+
+@keyframes multicoyn-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.multicoyn-animate-fade-in {
+  animation: multicoyn-fade-in 0.3s ease-out forwards;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}

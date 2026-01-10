@@ -1,3 +1,6 @@
+// Styles
+import './styles.css';
+
 // Main components
 export { MulticoynButton } from './components/MulticoynButton';
 export { PaymentSummary } from './components/PaymentSummary';

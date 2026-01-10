@@ -1,6 +1,6 @@
 {
   "name": "multicoyn-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multicoyn SDK for Web3 payments",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -12,7 +12,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./styles": "./dist/style.css"
+    "./styles": "./dist/multicoyn-sdk.css"
   },
   "files": [
     "dist"
@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:lib": "vite build",
+    "build:lib": "vite build && tsc --project tsconfig.app.json --outDir dist",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepublishOnly": "npm run build:lib"

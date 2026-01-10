@@ -30,6 +30,7 @@ interface PaymentModalProps {
   transactionHash?: string;
   isProcessing?: boolean;
   isSuccess?: boolean;
+  isError?: boolean;
   conversionRate?: number;
 }
 
@@ -45,6 +46,7 @@ export function PaymentModal({
   transactionHash,
   isProcessing: externalIsProcessing,
   isSuccess: externalIsSuccess,
+  isError: externalIsError,
   conversionRate = 1,
 }: PaymentModalProps) {
   const tokenRegistry = useTokenRegistry();
@@ -222,8 +224,18 @@ export function PaymentModal({
     } else if (externalIsProcessing) {
       setProgress(80);
       setProcessingMessage("Confirming transaction...");
+    } else if (externalIsError) {
+      setView("form");
+      setProgress(0);
+      setProcessingMessage("Preparing payment...");
+      setApprovingTokens([]);
     }
-  }, [externalIsSuccess, externalIsProcessing, transactionHash]);
+  }, [
+    externalIsSuccess,
+    externalIsProcessing,
+    externalIsError,
+    transactionHash,
+  ]);
 
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
   const displayCurrency = getCurrencySymbol(currency);

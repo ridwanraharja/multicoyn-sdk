@@ -52,6 +52,8 @@ export function MulticoynButton({
   const { executePayment, isConfirmed, hash, error, isPending, isConfirming } =
     usePaymentRouter();
 
+  const [hasError, setHasError] = useState(false);
+
   const extractIdrxPrice = (): number => {
     if (!idrxPriceData) return 1 / 15600;
 
@@ -73,12 +75,14 @@ export function MulticoynButton({
     if (!isConnected) {
       connect({ connector: connectors[0] });
     } else {
+      setHasError(false);
       setIsModalOpen(true);
     }
   };
 
   const handlePaymentSubmit = async (selectedTokens: Token[]) => {
     try {
+      setHasError(false);
       await executePayment({
         merchantAddress,
         tokens: selectedTokens,
@@ -88,6 +92,7 @@ export function MulticoynButton({
         callData,
       });
     } catch (error) {
+      setHasError(true);
       const parsedError = parseWeb3Error(error);
       onPaymentError?.(parsedError);
     }
@@ -187,6 +192,7 @@ export function MulticoynButton({
 
   useEffect(() => {
     if (error) {
+      setHasError(true);
       const parsedError = parseWeb3Error(error);
       onPaymentError?.(parsedError);
     }
@@ -215,6 +221,7 @@ export function MulticoynButton({
           transactionHash={hash}
           isProcessing={isPending || isConfirming}
           isSuccess={isConfirmed}
+          isError={hasError}
           conversionRate={idrToUsdRate}
         />
       )}

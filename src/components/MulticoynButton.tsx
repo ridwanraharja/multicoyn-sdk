@@ -7,31 +7,26 @@ import {
   usePaymentRouter,
   useTokenRegistry,
 } from "../hooks";
-import type { Token, PaymentItem, PaymentResult } from "./types";
+import type {
+  Token,
+  PaymentItem,
+  PaymentResult,
+  MulticoynButtonProps,
+} from "./types";
 import { TOKENS } from "../config/contracts";
 import { TOKEN_METADATA } from "../constants/payment";
 import { parseWeb3Error } from "../lib/errors";
 
-interface MulticoynButtonProps {
-  totalAmount: number;
-  merchantAddress: `0x${string}`;
-  currency?: string;
-  items: PaymentItem[];
-  target?: `0x${string}`;
-  callData?: `0x${string}`;
-  onPaymentComplete?: (result: PaymentResult) => void;
-  onPaymentError?: (error: Error) => void;
-  className?: string;
-  children?: React.ReactNode;
-}
+const USD_SCALE = 1e8;
+
+const calculateTotalAmount = (items: PaymentItem[]): number => {
+  return items.reduce((total, item) => total + item.price, 0);
+};
 
 export function MulticoynButton({
-  totalAmount,
   merchantAddress,
-  currency = "USD",
   items,
-  target,
-  callData,
+  config,
   onPaymentComplete,
   onPaymentError,
   className = "",
@@ -39,24 +34,27 @@ export function MulticoynButton({
 }: MulticoynButtonProps) {
   const { isConnected } = useAccount();
   const { connect, connectors } = useConnect();
+
+  const currency = config?.currency ?? "USD";
+  const target = config?.target;
+  const callData = config?.callData;
+
+  const totalAmount = calculateTotalAmount(items);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
 
+  const tokenRegistry = useTokenRegistry();
   const { balances, isLoading: balancesLoading } = useMultiTokenBalances();
   const { prices, isLoading: pricesLoading } = useMultiTokenPrices();
 
-  console.log("Token prices from useMultiTokenPrices:", prices);
-
+  const { data: idrxPriceData } = tokenRegistry.useGetTokenPrice(TOKENS.IDRX);
   const { executePayment, isConfirmed, hash, error, isPending, isConfirming } =
     usePaymentRouter();
 
-  const tokenRegistry = useTokenRegistry();
-  const { data: idrxPriceData } = tokenRegistry.useGetTokenPrice(TOKENS.IDRX);
-
-  const USD_SCALE = 1e8;
   const extractIdrxPrice = (): number => {
     if (!idrxPriceData) return 1 / 15600;
-    // Handle tuple [price, timestamp]
+
     if (Array.isArray(idrxPriceData) && idrxPriceData.length >= 1) {
       const price = idrxPriceData[0];
       if (typeof price === "bigint") {
@@ -65,9 +63,36 @@ export function MulticoynButton({
     }
     return 1 / 15600;
   };
+
   const idrToUsdRate = extractIdrxPrice();
 
-  // Build token list from balances and prices
+  const totalAmountUSD =
+    currency === "IDR" ? totalAmount * idrToUsdRate : totalAmount;
+
+  const handleClick = () => {
+    if (!isConnected) {
+      connect({ connector: connectors[0] });
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handlePaymentSubmit = async (selectedTokens: Token[]) => {
+    try {
+      await executePayment({
+        merchantAddress,
+        tokens: selectedTokens,
+        totalAmountUSD,
+        settleInIDR: currency === "IDR",
+        target,
+        callData,
+      });
+    } catch (error) {
+      const parsedError = parseWeb3Error(error);
+      onPaymentError?.(parsedError);
+    }
+  };
+
   useEffect(() => {
     if (!balancesLoading && !pricesLoading) {
       const tokenList: Token[] = [
@@ -129,7 +154,6 @@ export function MulticoynButton({
       ];
       setTokens(tokenList);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     balances.ETH,
     balances.USDC,
@@ -145,7 +169,6 @@ export function MulticoynButton({
     pricesLoading,
   ]);
 
-  // Handle payment success
   useEffect(() => {
     if (isConfirmed && hash) {
       const result: PaymentResult = {
@@ -155,44 +178,14 @@ export function MulticoynButton({
       };
       onPaymentComplete?.(result);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConfirmed, hash]);
 
-  // Handle payment error
   useEffect(() => {
     if (error) {
       const parsedError = parseWeb3Error(error);
       onPaymentError?.(parsedError);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
-
-  const totalAmountUSD =
-    currency === "IDR" ? totalAmount * idrToUsdRate : totalAmount;
-
-  const handleClick = () => {
-    if (!isConnected) {
-      connect({ connector: connectors[0] });
-    } else {
-      setIsModalOpen(true);
-    }
-  };
-
-  const handlePaymentSubmit = async (selectedTokens: Token[]) => {
-    try {
-      await executePayment({
-        merchantAddress,
-        tokens: selectedTokens,
-        totalAmountUSD,
-        settleInIDR: currency === "IDR",
-        target,
-        callData,
-      });
-    } catch (error) {
-      const parsedError = parseWeb3Error(error);
-      onPaymentError?.(parsedError);
-    }
-  };
 
   return (
     <>
@@ -210,7 +203,6 @@ export function MulticoynButton({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           totalAmount={totalAmountUSD}
-          originalAmount={totalAmount}
           currency={currency}
           items={items}
           tokens={tokens}
@@ -218,6 +210,7 @@ export function MulticoynButton({
           transactionHash={hash}
           isProcessing={isPending || isConfirming}
           isSuccess={isConfirmed}
+          conversionRate={idrToUsdRate}
         />
       )}
     </>

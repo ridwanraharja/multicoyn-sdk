@@ -18,14 +18,16 @@ export interface PaymentItem {
   price: number;
 }
 
-export interface MulticoynButtonProps {
-  totalAmount: number;
-  currency?: string;
-  items: PaymentItem[];
-  tokens?: Token[];
-  merchantAddress: string;
+export interface PaymentConfig {
+  currency?: "USD" | "IDR";
   target?: `0x${string}`;
   callData?: `0x${string}`;
+}
+
+export interface MulticoynButtonProps {
+  merchantAddress: `0x${string}`;
+  items: PaymentItem[];
+  config?: PaymentConfig;
   onPaymentComplete?: (result: PaymentResult) => void;
   onPaymentError?: (error: Error) => void;
   className?: string;

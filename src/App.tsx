@@ -30,10 +30,9 @@ function App() {
       </div>
 
       <MulticoynButton
-        totalAmount={1000000}
         merchantAddress="0x740F4ffd755Be5888aD1260609510dc1da0445C9"
-        currency="USD"
         items={[{ name: "Test Product", price: 1000000 }]}
+        config={{ currency: "IDR" }}
         onPaymentComplete={handlePaymentComplete}
         onPaymentError={handlePaymentError}
       />

@@ -16,11 +16,12 @@ import { getCurrencySymbol } from "../lib/tokens";
 
 type ModalView = "form" | "processing" | "success";
 
+const USD_SCALE = 1e8;
+
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   totalAmount: number;
-  originalAmount?: number;
   currency?: string;
   items: PaymentItem[];
   tokens: Token[];
@@ -29,33 +30,23 @@ interface PaymentModalProps {
   transactionHash?: string;
   isProcessing?: boolean;
   isSuccess?: boolean;
+  conversionRate?: number;
 }
 
 export function PaymentModal({
   isOpen,
   onClose,
   totalAmount,
-  originalAmount,
-  currency = "USDT",
+  currency = "USD",
   items,
   tokens: initialTokens,
   onPaymentSubmit,
-  fee = 0.3,
+  fee = 0.003,
   transactionHash,
   isProcessing: externalIsProcessing,
   isSuccess: externalIsSuccess,
+  conversionRate = 1,
 }: PaymentModalProps) {
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [autoOptimize, setAutoOptimize] = useState(true);
-  const [view, setView] = useState<ModalView>("form");
-  const [progress, setProgress] = useState(0);
-  const [transactionId, setTransactionId] = useState("");
-  const [processingMessage, setProcessingMessage] = useState(
-    "Preparing payment..."
-  );
-  const [approvingTokens, setApprovingTokens] = useState<string[]>([]);
-
   const tokenRegistry = useTokenRegistry();
 
   const { data: ethPrice } = tokenRegistry.useGetTokenPrice(TOKENS.NATIVE);
@@ -64,7 +55,16 @@ export function PaymentModal({
   const { data: daiPrice } = tokenRegistry.useGetTokenPrice(TOKENS.DAI);
   const { data: wbtcPrice } = tokenRegistry.useGetTokenPrice(TOKENS.WBTC);
 
-  const USD_SCALE = 1e8;
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [autoOptimize, setAutoOptimize] = useState(true);
+  const [view, setView] = useState<ModalView>("form");
+  const [progress, setProgress] = useState(0);
+  const [transactionId, setTransactionId] = useState("");
+  const [approvingTokens, setApprovingTokens] = useState<string[]>([]);
+  const [processingMessage, setProcessingMessage] = useState(
+    "Preparing payment..."
+  );
 
   const tokenKey = useMemo(
     () =>
@@ -78,7 +78,6 @@ export function PaymentModal({
     [initialTokens]
   );
 
-  // Helper to extract price from tuple [price, timestamp]
   const extractPrice = (priceData: unknown): number => {
     if (!priceData) return 0;
     if (Array.isArray(priceData) && priceData.length >= 1) {
@@ -129,7 +128,6 @@ export function PaymentModal({
 
       setTokens(updatedTokens);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, tokenKey, ethPrice, usdcPrice, usdtPrice, daiPrice, wbtcPrice]);
 
   useEffect(() => {
@@ -155,19 +153,19 @@ export function PaymentModal({
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
   const displayCurrency = getCurrencySymbol(currency);
 
-  // Use originalAmount for display if provided, otherwise use totalAmount
-  const displayAmount = originalAmount ?? totalAmount;
+  const usdToDisplayRate = currency === "IDR" ? 1 / conversionRate : 1;
 
-  const conversionRatio =
-    originalAmount && totalAmount > 0 ? originalAmount / totalAmount : 1;
-
+  // Items already in correct currency (IDR or USD), no conversion needed
   const displayItems = items.map((item) => ({
     ...item,
-    price: item.price * conversionRatio,
+    price: item.price,
   }));
-  const displayFee = fee * conversionRatio;
-  const totalPayment =
-    displayItems.reduce((sum, item) => sum + item.price, 0) + displayFee;
+
+  const totalFeeUSD = fee * totalAmount;
+  const totalPaymentUSD = totalAmount + totalFeeUSD;
+
+  const displayTotalFee = totalFeeUSD * usdToDisplayRate;
+  const displayTotalPayment = totalPaymentUSD * usdToDisplayRate;
 
   const hasInvalidPrice = tokens.some((token) => {
     if (token.percentage === 0) return false;
@@ -176,7 +174,7 @@ export function PaymentModal({
 
   const hasInsufficientBalance = tokens.some((token) => {
     if (token.percentage === 0) return false;
-    const usdValue = (totalAmount * token.percentage) / 100;
+    const usdValue = (totalPaymentUSD * token.percentage) / 100;
     const tokenAmountNeeded =
       token.priceUSD > 0 ? usdValue / token.priceUSD : 0;
     return tokenAmountNeeded > token.amount;
@@ -309,7 +307,7 @@ export function PaymentModal({
                 <div className="flex items-center gap-8 text-white w-full">
                   <span className="text-sm w-[106px]">Total Payment</span>
                   <span className="flex-1 text-base font-semibold text-right">
-                    {totalPayment.toFixed(2)} {displayCurrency}
+                    {displayTotalPayment.toFixed(2)} {displayCurrency}
                   </span>
                 </div>
               </div>
@@ -367,7 +365,7 @@ export function PaymentModal({
                   Total Required
                 </span>
                 <span className="text-xl font-bold text-white text-right flex-1">
-                  {displayAmount.toFixed(2)} {displayCurrency}
+                  {displayTotalPayment.toFixed(2)} {displayCurrency}
                 </span>
               </div>
 
@@ -423,8 +421,8 @@ export function PaymentModal({
                   <TokenSlider
                     key={token.id}
                     token={token}
-                    totalAmount={totalAmount}
-                    displayAmount={displayAmount}
+                    totalAmount={totalPaymentUSD}
+                    displayAmount={displayTotalPayment}
                     currency={currency}
                     onChange={(percentage) =>
                       handleTokenChange(token.id, percentage)
@@ -438,7 +436,7 @@ export function PaymentModal({
             <div className="w-full lg:w-[320px]">
               <PaymentSummary
                 items={displayItems}
-                fee={displayFee}
+                fee={displayTotalFee}
                 currency={currency}
               />
             </div>

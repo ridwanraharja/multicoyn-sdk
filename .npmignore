@@ -1,0 +1,16 @@
+src/
+public/
+node_modules/
+.git/
+.gitignore
+.env
+.env.example
+*.log
+*.md
+!README.md
+tsconfig.*.json
+vite.config.ts
+eslint.config.js
+index.html
+.DS_Store
+.claude/

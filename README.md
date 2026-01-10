@@ -1,73 +1,95 @@
-# React + TypeScript + Vite
+# Multicoyn SDK
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Web3 payment SDK for multichain crypto payments with support for multiple tokens and settlement options.
 
-Currently, two official plugins are available:
+## Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install multicoyn-sdk
+# or
+yarn add multicoyn-sdk
+# or
+pnpm add multicoyn-sdk
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Peer Dependencies
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Make sure you have the following peer dependencies installed:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install react react-dom viem wagmi @tanstack/react-query @rainbow-me/rainbowkit
 ```
+
+## Usage
+
+### 1. Setup Providers
+
+Wrap your app with the required providers:
+
+```tsx
+import { Web3Provider, PaymentProvider } from 'multicoyn-sdk';
+import 'multicoyn-sdk/styles';
+
+function App() {
+  return (
+    <Web3Provider>
+      <PaymentProvider>
+        <YourApp />
+      </PaymentProvider>
+    </Web3Provider>
+  );
+}
+```
+
+### 2. Use the Payment Button
+
+```tsx
+import { MulticoynButton } from 'multicoyn-sdk';
+
+function YourComponent() {
+  return (
+    <MulticoynButton
+      amount="100"
+      currency="USD"
+      recipientAddress="0x..."
+      onSuccess={(txHash) => console.log('Payment success:', txHash)}
+      onError={(error) => console.error('Payment error:', error)}
+    />
+  );
+}
+```
+
+### 3. Access Payment Configuration
+
+```tsx
+import { usePaymentConfig } from 'multicoyn-sdk';
+
+function YourComponent() {
+  const config = usePaymentConfig();
+  // Access payment configuration and state
+}
+```
+
+## Features
+
+- Multi-chain payment support
+- Multiple token options (USDC, USDT, DAI, WBTC, Native tokens)
+- Settlement token support (IDRX)
+- Built-in wallet connection via RainbowKit
+- TypeScript support
+- Tailwind CSS styling
+
+## Configuration
+
+The SDK comes with pre-configured contracts and chains. You can also access these configurations:
+
+```tsx
+import { CONTRACTS, TOKENS, liskSepolia } from 'multicoyn-sdk';
+
+console.log(CONTRACTS.PAYMENT_ROUTER);
+console.log(TOKENS.USDC);
+```
+
+## License
+
+MIT

@@ -1,5 +1,5 @@
 import type { PaymentItem } from "./types";
-import { getCurrencySymbol } from "../lib/tokens";
+import { getCurrencySymbol, formatNumberWithCommas } from "../lib/tokens";
 
 interface PaymentSummaryProps {
   items: PaymentItem[];
@@ -22,13 +22,13 @@ export function PaymentSummary({ items, fee = 0.3, currency }: PaymentSummaryPro
           className="flex items-center justify-between text-xs text-white"
         >
           <span className="flex-1">{item.name}</span>
-          <span className="text-right">{item.price.toFixed(2)} {displayCurrency}</span>
+          <span className="text-right">{formatNumberWithCommas(item.price)} {displayCurrency}</span>
         </div>
       ))}
 
       <div className="flex items-center justify-between text-xs text-white">
         <span className="flex-1">Fee</span>
-        <span className="text-right">{fee.toFixed(2)} {displayCurrency}</span>
+        <span className="text-right">{formatNumberWithCommas(fee)} {displayCurrency}</span>
       </div>
 
       <div className="h-px bg-white/20" />
@@ -36,7 +36,7 @@ export function PaymentSummary({ items, fee = 0.3, currency }: PaymentSummaryPro
       <div className="flex items-center justify-between text-white">
         <span className="text-xs">Total Payment</span>
         <span className="text-base font-semibold text-right">
-          {total.toFixed(2)} {displayCurrency}
+          {formatNumberWithCommas(total)} {displayCurrency}
         </span>
       </div>
     </div>

@@ -78,3 +78,14 @@ export function formatCurrencyAmount(
   const symbol = getCurrencySymbol(currency);
   return `${amount.toFixed(decimals)} ${symbol}`;
 }
+
+export function formatNumberWithCommas(
+  value: number,
+  decimals: number = 2
+): string {
+  const fixed = value.toFixed(decimals);
+  const [integerPart, decimalPart] = fixed.split(".");
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+}

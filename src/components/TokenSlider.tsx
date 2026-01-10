@@ -1,5 +1,5 @@
 import type { Token } from "./types";
-import { getCurrencySymbol } from "../lib/tokens";
+import { getCurrencySymbol, formatNumberWithCommas } from "../lib/tokens";
 
 interface TokenSliderProps {
   token: Token;
@@ -100,7 +100,7 @@ export function TokenSlider({
 
       <div className="flex flex-col items-end gap-0.5 min-w-25">
         <span className="text-xs font-semibold text-white">
-          {token.percentage}% = {displayValue.toFixed(2)} {displayCurrency}
+          {token.percentage}% = {formatNumberWithCommas(displayValue)} {displayCurrency}
         </span>
         {token.percentage > 0 && (
           <span
@@ -108,7 +108,7 @@ export function TokenSlider({
               hasEnoughBalance ? "text-white/60" : "text-red-500"
             }`}
           >
-            {tokenAmountNeeded.toFixed(4)} {token.symbol}
+            {formatNumberWithCommas(tokenAmountNeeded, 4)} {token.symbol}
             {!hasEnoughBalance && " ⚠️"}
           </span>
         )}

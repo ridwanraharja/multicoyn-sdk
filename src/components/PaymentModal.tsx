@@ -12,7 +12,7 @@ import { PaymentSummary } from "./PaymentSummary";
 import type { Token, PaymentItem } from "./types";
 import { TOKENS } from "../config/contracts";
 import { useTokenRegistry } from "../hooks/useTokenRegistry";
-import { getCurrencySymbol } from "../lib/tokens";
+import { getCurrencySymbol, formatNumberWithCommas } from "../lib/tokens";
 
 type ModalView = "form" | "processing" | "success";
 
@@ -307,7 +307,8 @@ export function PaymentModal({
                 <div className="flex items-center gap-8 text-white w-full">
                   <span className="text-sm w-[106px]">Total Payment</span>
                   <span className="flex-1 text-base font-semibold text-right">
-                    {displayTotalPayment.toFixed(2)} {displayCurrency}
+                    {formatNumberWithCommas(displayTotalPayment)}{" "}
+                    {displayCurrency}
                   </span>
                 </div>
               </div>
@@ -365,7 +366,8 @@ export function PaymentModal({
                   Total Required
                 </span>
                 <span className="text-xl font-bold text-white text-right flex-1">
-                  {displayTotalPayment.toFixed(2)} {displayCurrency}
+                  {formatNumberWithCommas(displayTotalPayment)}{" "}
+                  {displayCurrency}
                 </span>
               </div>
 

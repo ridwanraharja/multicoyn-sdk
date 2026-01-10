@@ -283,9 +283,10 @@ export function PaymentModal({
 
   const filteredTokens = tokens.filter(
     (t) =>
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.chain.toLowerCase().includes(searchQuery.toLowerCase())
+      t.amount > 0 &&
+      (t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.chain.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSubmit = async () => {

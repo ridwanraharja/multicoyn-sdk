@@ -153,11 +153,21 @@ export function PaymentModal({
   }, [externalIsSuccess, externalIsProcessing, transactionHash]);
 
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
-  const totalPayment = items.reduce((sum, item) => sum + item.price, 0) + fee;
   const displayCurrency = getCurrencySymbol(currency);
 
   // Use originalAmount for display if provided, otherwise use totalAmount
   const displayAmount = originalAmount ?? totalAmount;
+
+  const conversionRatio =
+    originalAmount && totalAmount > 0 ? originalAmount / totalAmount : 1;
+
+  const displayItems = items.map((item) => ({
+    ...item,
+    price: item.price * conversionRatio,
+  }));
+  const displayFee = fee * conversionRatio;
+  const totalPayment =
+    displayItems.reduce((sum, item) => sum + item.price, 0) + displayFee;
 
   const hasInvalidPrice = tokens.some((token) => {
     if (token.percentage === 0) return false;
@@ -426,7 +436,11 @@ export function PaymentModal({
 
             {/* Right Side - Payment Summary */}
             <div className="w-full lg:w-[320px]">
-              <PaymentSummary items={items} fee={fee} currency={currency} />
+              <PaymentSummary
+                items={displayItems}
+                fee={displayFee}
+                currency={currency}
+              />
             </div>
           </div>
 

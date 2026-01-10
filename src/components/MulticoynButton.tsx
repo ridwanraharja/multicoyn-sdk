@@ -17,7 +17,6 @@ interface MulticoynButtonProps {
   merchantAddress: `0x${string}`;
   currency?: string;
   items: PaymentItem[];
-  settleInIDR?: boolean;
   target?: `0x${string}`;
   callData?: `0x${string}`;
   onPaymentComplete?: (result: PaymentResult) => void;
@@ -31,7 +30,6 @@ export function MulticoynButton({
   merchantAddress,
   currency = "USD",
   items,
-  settleInIDR = false,
   target,
   callData,
   onPaymentComplete,
@@ -186,7 +184,7 @@ export function MulticoynButton({
         merchantAddress,
         tokens: selectedTokens,
         totalAmountUSD,
-        settleInIDR,
+        settleInIDR: currency === "IDR",
         target,
         callData,
       });

@@ -18,6 +18,8 @@ interface MulticoynButtonProps {
   currency?: string;
   items: PaymentItem[];
   settleInIDR?: boolean;
+  target?: `0x${string}`;
+  callData?: `0x${string}`;
   onPaymentComplete?: (result: PaymentResult) => void;
   onPaymentError?: (error: Error) => void;
   className?: string;
@@ -30,6 +32,8 @@ export function MulticoynButton({
   currency = "USD",
   items,
   settleInIDR = false,
+  target,
+  callData,
   onPaymentComplete,
   onPaymentError,
   className = "",
@@ -195,6 +199,8 @@ export function MulticoynButton({
         tokens: selectedTokens,
         totalAmountUSD,
         settleInIDR,
+        target,
+        callData,
       });
     } catch (error) {
       const parsedError = parseWeb3Error(error);

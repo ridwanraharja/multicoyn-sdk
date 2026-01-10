@@ -52,14 +52,9 @@ export function MulticoynButton({
   const { executePayment, isConfirmed, hash, error, isPending, isConfirming } =
     usePaymentRouter();
 
-  // Get IDRX price for IDR to USD conversion
   const tokenRegistry = useTokenRegistry();
   const { data: idrxPriceData } = tokenRegistry.useGetTokenPrice(TOKENS.IDRX);
 
-  // Calculate IDR to USD rate from IDRX price
-  // getTokenPriceUSD returns [price, timestamp] tuple
-  // idrxPriceData is in 1e8 scale, so divide by 1e8 to get USD value
-  // Example: 6400 / 1e8 = 0.000064 USD per IDRX
   const USD_SCALE = 1e8;
   const extractIdrxPrice = (): number => {
     if (!idrxPriceData) return 1 / 15600;
@@ -161,11 +156,6 @@ export function MulticoynButton({
         tokens: tokens.filter((t) => t.percentage > 0),
       };
       onPaymentComplete?.(result);
-
-      // const timer = setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
-      // return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConfirmed, hash]);
@@ -179,13 +169,11 @@ export function MulticoynButton({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
-  // Convert amount to USD if needed using fetched IDRX price
   const totalAmountUSD =
     currency === "IDR" ? totalAmount * idrToUsdRate : totalAmount;
 
   const handleClick = () => {
     if (!isConnected) {
-      // Connect with first available connector (usually MetaMask or RainbowKit modal)
       connect({ connector: connectors[0] });
     } else {
       setIsModalOpen(true);
@@ -224,6 +212,7 @@ export function MulticoynButton({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           totalAmount={totalAmountUSD}
+          originalAmount={totalAmount}
           currency={currency}
           items={items}
           tokens={tokens}

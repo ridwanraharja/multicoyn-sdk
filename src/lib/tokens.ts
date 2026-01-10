@@ -1,6 +1,6 @@
-import { formatUnits, parseUnits } from 'viem';
-import { USD_SCALE } from '../constants/payment';
-import type { Token } from '../components/types';
+import { formatUnits, parseUnits } from "viem";
+import { USD_SCALE } from "../constants/payment";
+import type { Token } from "../components/types";
 
 export function calculateTokenAmount(
   usdValue: number,
@@ -31,16 +31,16 @@ export function validateTokenSelection(tokens: Token[]): {
   const activeTokens = tokens.filter((t) => t.percentage > 0);
 
   if (activeTokens.length === 0) {
-    return { isValid: false, error: 'No tokens selected' };
+    return { isValid: false, error: "No tokens selected" };
   }
 
   if (activeTokens.length > 5) {
-    return { isValid: false, error: 'Maximum 5 tokens allowed' };
+    return { isValid: false, error: "Maximum 5 tokens allowed" };
   }
 
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
   if (Math.abs(totalPercentage - 100) > 0.01) {
-    return { isValid: false, error: 'Total must equal 100%' };
+    return { isValid: false, error: "Total must equal 100%" };
   }
 
   // Check sufficient balances
@@ -55,4 +55,26 @@ export function validateTokenSelection(tokens: Token[]): {
 
 export function scaleUSDAmount(usdAmount: number): bigint {
   return BigInt(Math.floor(usdAmount * USD_SCALE));
+}
+
+export function getCurrencySymbol(currency?: string): string {
+  if (!currency) return "USDT";
+
+  switch (currency.toUpperCase()) {
+    case "IDR":
+      return "IDRX";
+    case "USD":
+      return "USDT";
+    default:
+      return currency.toUpperCase();
+  }
+}
+
+export function formatCurrencyAmount(
+  amount: number,
+  currency?: string,
+  decimals: number = 2
+): string {
+  const symbol = getCurrencySymbol(currency);
+  return `${amount.toFixed(decimals)} ${symbol}`;
 }

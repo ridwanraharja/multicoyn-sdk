@@ -12,6 +12,7 @@ import { PaymentSummary } from "./PaymentSummary";
 import type { Token, PaymentItem } from "./types";
 import { TOKENS } from "../config/contracts";
 import { useTokenRegistry } from "../hooks/useTokenRegistry";
+import { getCurrencySymbol } from "../lib/tokens";
 
 type ModalView = "form" | "processing" | "success";
 
@@ -19,6 +20,7 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   totalAmount: number;
+  originalAmount?: number;
   currency?: string;
   items: PaymentItem[];
   tokens: Token[];
@@ -33,6 +35,7 @@ export function PaymentModal({
   isOpen,
   onClose,
   totalAmount,
+  originalAmount,
   currency = "USDT",
   items,
   tokens: initialTokens,
@@ -151,6 +154,10 @@ export function PaymentModal({
 
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
   const totalPayment = items.reduce((sum, item) => sum + item.price, 0) + fee;
+  const displayCurrency = getCurrencySymbol(currency);
+
+  // Use originalAmount for display if provided, otherwise use totalAmount
+  const displayAmount = originalAmount ?? totalAmount;
 
   const hasInvalidPrice = tokens.some((token) => {
     if (token.percentage === 0) return false;
@@ -292,7 +299,7 @@ export function PaymentModal({
                 <div className="flex items-center gap-8 text-white w-full">
                   <span className="text-sm w-[106px]">Total Payment</span>
                   <span className="flex-1 text-base font-semibold text-right">
-                    ${totalPayment.toFixed(2)}
+                    {totalPayment.toFixed(2)} {displayCurrency}
                   </span>
                 </div>
               </div>
@@ -350,7 +357,7 @@ export function PaymentModal({
                   Total Required
                 </span>
                 <span className="text-xl font-bold text-white text-right flex-1">
-                  {totalAmount} {currency}
+                  {displayAmount.toFixed(2)} {displayCurrency}
                 </span>
               </div>
 
@@ -407,6 +414,8 @@ export function PaymentModal({
                     key={token.id}
                     token={token}
                     totalAmount={totalAmount}
+                    displayAmount={displayAmount}
+                    currency={currency}
                     onChange={(percentage) =>
                       handleTokenChange(token.id, percentage)
                     }
@@ -417,7 +426,7 @@ export function PaymentModal({
 
             {/* Right Side - Payment Summary */}
             <div className="w-full lg:w-[320px]">
-              <PaymentSummary items={items} fee={fee} />
+              <PaymentSummary items={items} fee={fee} currency={currency} />
             </div>
           </div>
 

@@ -32,9 +32,9 @@ function App() {
       <MulticoynButton
         totalAmount={1000000}
         merchantAddress="0x740F4ffd755Be5888aD1260609510dc1da0445C9"
-        currency="IDR"
+        currency="USD"
         items={[{ name: "Test Product", price: 1000000 }]}
-        settleInIDR={true}
+        settleInIDR={false}
         onPaymentComplete={handlePaymentComplete}
         onPaymentError={handlePaymentError}
       />

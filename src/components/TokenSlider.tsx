@@ -1,15 +1,20 @@
 import type { Token } from "./types";
+import { getCurrencySymbol } from "../lib/tokens";
 
 interface TokenSliderProps {
   token: Token;
   onChange: (percentage: number) => void;
-  totalAmount: number;
+  totalAmount: number; // USD amount for calculating token needed
+  displayAmount?: number; // Original amount for display
+  currency?: string;
 }
 
 export function TokenSlider({
   token,
   onChange,
   totalAmount,
+  displayAmount,
+  currency,
 }: TokenSliderProps) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
@@ -19,6 +24,10 @@ export function TokenSlider({
   const tokenAmountNeeded = token.priceUSD > 0 ? usdValue / token.priceUSD : 0;
   const hasEnoughBalance = tokenAmountNeeded <= token.amount;
   const hasValidPrice = token.priceUSD > 0;
+  const displayCurrency = getCurrencySymbol(currency);
+
+  const amountToShow = displayAmount ?? totalAmount;
+  const displayValue = (amountToShow * token.percentage) / 100;
 
   return (
     <div className="flex items-center gap-1.5 w-full">
@@ -91,7 +100,7 @@ export function TokenSlider({
 
       <div className="flex flex-col items-end gap-0.5 min-w-25">
         <span className="text-xs font-semibold text-white">
-          {token.percentage}% = ${usdValue.toFixed(2)}
+          {token.percentage}% = {displayValue.toFixed(2)} {displayCurrency}
         </span>
         {token.percentage > 0 && (
           <span

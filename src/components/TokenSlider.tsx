@@ -1,5 +1,5 @@
+import { formatNumberWithCommas, getCurrencySymbol } from "../lib/tokens";
 import type { Token } from "./types";
-import { getCurrencySymbol, formatNumberWithCommas } from "../lib/tokens";
 
 interface TokenSliderProps {
   token: Token;
@@ -32,9 +32,9 @@ export function TokenSlider({
   const displayValue = (amountToShow * token.percentage) / 100;
 
   return (
-    <div className="mc:flex mc:items-center mc:gap-1.5 mc:w-full">
-      <div className="mc:flex mc:items-center mc:gap-3 mc:w-35">
-        <div className="mc:relative mc:size-[30px]">
+    <div className="mc:flex mc:items-center mc:gap-1.5 mc:sm:gap-2 mc:w-full mc:flex-wrap">
+      <div className="mc:flex mc:items-center mc:gap-2 mc:sm:gap-3 mc:min-w-0 mc:flex-1 mc:sm:flex-initial">
+        <div className="mc:relative mc:size-[30px] mc:shrink-0">
           <div
             className={`mc:size-[30px] mc:rounded-full mc:bg-dark-4 mc:overflow-hidden mc:flex mc:items-center mc:justify-center ${
               !hasValidPrice ? "mc:opacity-50" : ""
@@ -66,13 +66,15 @@ export function TokenSlider({
             )}
           </div>
         </div>
-        <div className="mc:flex mc:flex-col mc:gap-1 mc:text-xs mc:text-white">
-          <span className="mc:font-semibold">{token.name}</span>
-          <span className="mc:font-normal mc:opacity-75">
+        <div className="mc:flex mc:flex-col mc:gap-1 mc:text-xs mc:text-white mc:min-w-0">
+          <span className="mc:font-semibold mc:wrap-break-word">
+            {token.name}
+          </span>
+          <span className="mc:font-normal mc:opacity-75 mc:wrap-break-word">
             {token.amount.toFixed(4)} {token.symbol}
           </span>
           <span
-            className={`mc:text-[10px] ${
+            className={`mc:text-[10px] mc:wrap-break-word ${
               hasValidPrice ? "mc:text-white/50" : "mc:text-yellow-500"
             }`}
           >
@@ -84,7 +86,7 @@ export function TokenSlider({
       </div>
 
       <div
-        className={`mc:flex-1 mc:relative mc:h-1.5 ${
+        className={`mc:flex-1 mc:relative mc:h-1.5 mc:min-w-[100px] ${
           disabled ? "mc:opacity-50" : ""
         }`}
       >
@@ -106,14 +108,14 @@ export function TokenSlider({
         />
       </div>
 
-      <div className="mc:flex mc:flex-col mc:items-end mc:gap-0.5 mc:min-w-25">
-        <span className="mc:text-xs mc:font-semibold mc:text-white">
+      <div className="mc:flex mc:flex-col mc:items-end mc:gap-0.5 mc:min-w-0 mc:w-full mc:sm:w-auto">
+        <span className="mc:text-xs mc:font-semibold mc:text-white mc:text-right mc:wrap-break-word">
           {token.percentage}% = {formatNumberWithCommas(displayValue)}{" "}
           {displayCurrency}
         </span>
         {token.percentage > 0 && (
           <span
-            className={`mc:text-[10px] ${
+            className={`mc:text-[10px] mc:text-right mc:wrap-break-word ${
               hasEnoughBalance ? "mc:text-white/60" : "mc:text-red-500"
             }`}
           >

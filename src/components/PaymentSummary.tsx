@@ -18,34 +18,34 @@ export function PaymentSummary({
 
   return (
     <div className="mc:bg-dark-4 mc:rounded-md mc:p-3 mc:flex mc:flex-col mc:gap-3 mc:w-full">
-      <p className="mc:font-medium mc:text-base mc:text-white">
+      <p className="mc:font-medium mc:text-sm mc:sm:text-base mc:text-white mc:break-words">
         Payment Summary
       </p>
 
       {items.map((item, index) => (
         <div
           key={index}
-          className="mc:flex mc:items-center mc:justify-between mc:text-xs mc:text-white"
+          className="mc:flex mc:items-center mc:justify-between mc:text-xs mc:text-white mc:gap-2"
         >
-          <span className="mc:flex-1">{item.name}</span>
-          <span className="mc:text-right">
+          <span className="mc:flex-1 mc:min-w-0 mc:break-words">{item.name}</span>
+          <span className="mc:text-right mc:flex-shrink-0">
             {formatNumberWithCommas(item.price)} {displayCurrency}
           </span>
         </div>
       ))}
 
-      <div className="mc:flex mc:items-center mc:justify-between mc:text-xs mc:text-white">
+      <div className="mc:flex mc:items-center mc:justify-between mc:text-xs mc:text-white mc:gap-2">
         <span className="mc:flex-1">Fee</span>
-        <span className="mc:text-right">
+        <span className="mc:text-right mc:flex-shrink-0">
           {formatNumberWithCommas(fee)} {displayCurrency}
         </span>
       </div>
 
       <div className="mc:h-px mc:bg-white/20" />
 
-      <div className="mc:flex mc:items-center mc:justify-between mc:text-white">
+      <div className="mc:flex mc:items-center mc:justify-between mc:text-white mc:gap-2">
         <span className="mc:text-xs">Total Payment</span>
-        <span className="mc:text-base mc:font-semibold mc:text-right">
+        <span className="mc:text-sm mc:sm:text-base mc:font-semibold mc:text-right mc:break-words">
           {formatNumberWithCommas(total)} {displayCurrency}
         </span>
       </div>

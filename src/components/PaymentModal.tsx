@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  CloseIcon,
-  SearchIcon,
-  InfoIcon,
-  ProcessingIcon,
-  SuccessIcon,
-} from "./icons";
-import { TokenSlider } from "./TokenSlider";
-import { PaymentSummary } from "./PaymentSummary";
-import type { Token, PaymentItem } from "./types";
 import { TOKENS } from "../config/contracts";
 import { useTokenRegistry } from "../hooks/useTokenRegistry";
-import { getCurrencySymbol, formatNumberWithCommas } from "../lib/tokens";
+import { formatNumberWithCommas, getCurrencySymbol } from "../lib/tokens";
+import {
+  CloseIcon,
+  InfoIcon,
+  ProcessingIcon,
+  SearchIcon,
+  SuccessIcon,
+} from "./icons";
+import { PaymentSummary } from "./PaymentSummary";
+import { TokenSlider } from "./TokenSlider";
+import type { PaymentItem, Token } from "./types";
 
 type ModalView = "form" | "processing" | "success";
 
@@ -329,28 +329,28 @@ export function PaymentModal({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="multicoyn-sdk mc:fixed mc:inset-0 mc:z-[9999] mc:flex mc:items-center mc:justify-center">
+    <div className="multicoyn-sdk mc:fixed mc:inset-0 mc:z-9999 mc:flex mc:items-center mc:justify-center">
       <div
         className="mc:absolute mc:inset-0 mc:bg-black/60 mc:backdrop-blur-sm"
         onClick={view === "form" ? onClose : undefined}
       />
 
       {view === "processing" && (
-        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-5 mc:items-center mc:justify-center mc:w-[400px] mc:min-h-[280px] mc:mx-4 animate-slide-in-right">
+        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-5 mc:items-center mc:justify-center mc:w-full mc:max-w-[400px] mc:min-h-[280px] mc:mx-4 animate-slide-in-right">
           <ProcessingIcon size={134} />
-          <div className="mc:flex mc:flex-col mc:gap-3 mc:items-center mc:w-[300px]">
-            <div className="mc:relative mc:w-[234px] mc:h-1.5">
+          <div className="mc:flex mc:flex-col mc:gap-3 mc:items-center mc:w-full mc:max-w-[300px] mc:px-2">
+            <div className="mc:relative mc:w-full mc:max-w-[234px] mc:h-1.5">
               <div className="mc:absolute mc:inset-0 mc:bg-dark-4 mc:rounded-full" />
               <div
                 className="mc:absolute mc:left-0 mc:top-0 mc:h-full mc:bg-secondary mc:rounded-full mc:transition-all mc:duration-300"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <p className="mc:text-sm mc:text-white mc:text-center">
+            <p className="mc:text-sm mc:text-white mc:text-center mc:wrap-break-word mc:px-2">
               {processingMessage}
             </p>
             {approvingTokens.length > 0 && (
-              <div className="mc:text-xs mc:text-white/60 mc:text-center">
+              <div className="mc:text-xs mc:text-white/60 mc:text-center mc:wrap-break-word mc:px-2">
                 Approving: {approvingTokens.join(", ")}
               </div>
             )}
@@ -359,30 +359,34 @@ export function PaymentModal({
       )}
 
       {view === "success" && (
-        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-8 mc:items-start mc:w-[380px] mc:mx-4 animate-slide-in-right">
+        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-8 mc:items-start mc:w-full mc:max-w-[380px] mc:mx-4 animate-slide-in-right">
           <div className="mc:flex mc:flex-col mc:gap-6 mc:items-center mc:w-full">
             <SuccessIcon size={95} />
             <div className="mc:flex mc:flex-col mc:items-center mc:justify-center mc:w-full">
-              <div className="mc:flex mc:flex-col mc:gap-1 mc:items-center mc:text-white">
-                <p className="mc:text-lg mc:font-semibold">Payment Success</p>
-                <p className="mc:text-sm">
+              <div className="mc:flex mc:flex-col mc:gap-1 mc:items-center mc:text-white mc:px-2">
+                <p className="mc:text-lg mc:font-semibold mc:text-center">
+                  Payment Success
+                </p>
+                <p className="mc:text-sm mc:text-center">
                   Your payment has been successfully done.
                 </p>
               </div>
             </div>
 
-            <div className="mc:bg-dark-4 mc:border mc:border-white/10 mc:rounded-lg mc:py-3 mc:px-0 mc:w-[348px] mc:flex mc:flex-col mc:items-center">
-              <div className="mc:flex mc:flex-col mc:gap-2 mc:w-[318px]">
+            <div className="mc:bg-dark-4 mc:border mc:border-white/10 mc:rounded-lg mc:py-3 mc:px-4 mc:w-full mc:max-w-[348px] mc:flex mc:flex-col mc:items-center">
+              <div className="mc:flex mc:flex-col mc:gap-2 mc:w-full">
                 <p className="mc:text-xs mc:text-white">Order Details:</p>
-                <div className="mc:flex mc:items-center mc:gap-8 mc:text-sm mc:text-white mc:w-full">
-                  <span className="mc:w-[85px]">Item</span>
-                  <span className="mc:flex-1 mc:text-right">
+                <div className="mc:flex mc:items-center mc:gap-4 mc:sm:gap-8 mc:text-sm mc:text-white mc:w-full">
+                  <span className="mc:min-w-[85px] mc:shrink-0">Item</span>
+                  <span className="mc:flex-1 mc:text-right mc:wrap-break-word">
                     {items[0]?.name || "Item"}
                   </span>
                 </div>
-                <div className="mc:flex mc:items-center mc:gap-8 mc:text-white mc:w-full">
-                  <span className="mc:text-sm mc:w-[106px]">Total Payment</span>
-                  <span className="mc:flex-1 mc:text-base mc:font-semibold mc:text-right">
+                <div className="mc:flex mc:items-center mc:gap-4 mc:sm:gap-8 mc:text-white mc:w-full">
+                  <span className="mc:text-sm mc:min-w-[106px] mc:shrink-0">
+                    Total Payment
+                  </span>
+                  <span className="mc:flex-1 mc:text-base mc:font-semibold mc:text-right mc:wrap-break-word">
                     {formatNumberWithCommas(displayTotalPayment)}{" "}
                     {displayCurrency}
                   </span>
@@ -391,16 +395,16 @@ export function PaymentModal({
             </div>
           </div>
 
-          <div className="mc:h-px mc:w-[320px] mc:bg-white/20" />
+          <div className="mc:h-px mc:w-full mc:max-w-[320px] mc:bg-white/20" />
 
           <div className="mc:flex mc:flex-col mc:gap-2 mc:items-center mc:justify-center mc:w-full mc:text-xs mc:text-white mc:px-5">
-            <p>{formatDate()}</p>
+            <p className="mc:text-center">{formatDate()}</p>
             {transactionId && (
               <a
                 href={`https://sepolia-blockscout.lisk.com/tx/${transactionId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mc:text-cyan hover:mc:underline"
+                className="mc:text-cyan hover:mc:underline mc:text-center mc:break-all"
               >
                 View Transaction
               </a>
@@ -419,17 +423,17 @@ export function PaymentModal({
       {view === "form" && (
         <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-5 mc:max-w-[1000px] mc:w-full mc:mx-4 mc:max-h-[90vh] mc:overflow-y-auto animate-slide-in-right">
           <div className="mc:flex mc:items-center mc:gap-4">
-            <div className="mc:flex-1 mc:flex mc:flex-col mc:gap-1">
-              <h2 className="mc:text-xl mc:text-white mc:font-normal">
+            <div className="mc:flex-1 mc:flex mc:flex-col mc:gap-1 mc:min-w-0">
+              <h2 className="mc:text-lg mc:sm:text-xl mc:text-white mc:font-normal mc:wrap-break-word">
                 Complete Payment
               </h2>
-              <p className="mc:text-base mc:text-white/70">
+              <p className="mc:text-sm mc:sm:text-base mc:text-white/70 mc:wrap-break-word">
                 Choose how you want to pay (supports multi-token for wallets)
               </p>
             </div>
             <button
               onClick={onClose}
-              className="mc:text-white/60 hover:mc:text-white mc:transition-colors"
+              className="mc:text-white/60 hover:mc:text-white mc:transition-colors mc:shrink-0"
             >
               <CloseIcon size={26} />
             </button>
@@ -437,41 +441,47 @@ export function PaymentModal({
 
           <div className="mc:flex mc:gap-5 mc:flex-col mc:lg:flex-row">
             <div className="mc:flex-1 mc:flex mc:flex-col mc:gap-5">
-              <div className="mc:bg-dark-4 mc:rounded-md mc:p-4 mc:flex mc:items-center mc:gap-5">
-                <span className="mc:text-base mc:text-white/60 mc:w-[340px]">
+              <div className="mc:bg-dark-4 mc:rounded-md mc:p-4 mc:flex mc:items-center mc:gap-3 mc:sm:gap-5 mc:flex-col mc:md:flex-row">
+                <span className="mc:text-sm mc:sm:text-base mc:text-white/60 mc:min-w-[120px] mc:shrink-0">
                   Total Required
                 </span>
-                <span className="mc:text-xl mc:font-bold mc:text-white mc:text-right mc:flex-1">
+                <span className="mc:text-lg mc:sm:text-xl mc:font-bold mc:text-white mc:text-right mc:flex-1 mc:min-w-0 mc:wrap-break-word">
                   {formatNumberWithCommas(displayTotalPayment)}{" "}
                   {displayCurrency}
                 </span>
               </div>
 
-              <div className="mc:flex mc:items-center mc:gap-5">
-                <span className="mc:text-base mc:text-white mc:flex-1">
+              <div className="mc:flex mc:items-center mc:gap-3 mc:sm:gap-5 mc:flex-wrap">
+                <span className="mc:text-sm mc:sm:text-base mc:text-white mc:flex-1 mc:min-w-0">
                   Use your tokens
                 </span>
-                <div className="mc:bg-dark-4 mc:rounded-md mc:px-3 mc:py-2 mc:flex mc:items-center mc:gap-2">
-                  <SearchIcon size={16} className="mc:text-white/60" />
+                <div className="mc:bg-dark-4 mc:rounded-md mc:px-3 mc:py-2 mc:flex mc:items-center mc:gap-2 mc:flex-1 mc:sm:flex-initial mc:min-w-0">
+                  <SearchIcon
+                    size={16}
+                    className="mc:text-white/60 mc:shrink-0"
+                  />
                   <input
                     type="text"
                     placeholder="Search token or chain.."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="mc:bg-transparent mc:border-none mc:outline-none mc:text-base mc:text-white/60 placeholder:mc:text-white/60"
+                    className="mc:bg-transparent mc:border-none mc:outline-none mc:text-sm mc:sm:text-base mc:text-white/60 placeholder:mc:text-white/60 mc:w-full mc:min-w-0"
                   />
                 </div>
               </div>
 
               <div className="mc:bg-dark-3 mc:rounded-md mc:p-3 mc:flex mc:flex-col mc:gap-4">
-                <div className="mc:flex mc:items-center mc:gap-6">
-                  <div className="mc:flex-1 mc:flex mc:items-center mc:gap-2">
-                    <InfoIcon size={16} className="mc:text-white/60" />
-                    <span className="mc:text-sm mc:italic mc:text-white">
+                <div className="mc:flex mc:items-center mc:gap-3 mc:sm:gap-6 mc:flex-col mc:md:flex-row">
+                  <div className="mc:flex-1 mc:flex mc:items-center mc:gap-2 mc:min-w-0 mc:flex-wrap">
+                    <InfoIcon
+                      size={16}
+                      className="mc:text-white/60 mc:shrink-0"
+                    />
+                    <span className="mc:text-xs mc:sm:text-sm mc:italic mc:text-white mc:wrap-break-word">
                       Set the coins amount until 100%
                     </span>
                     <span
-                      className={`mc:bg-dark-4 mc:rounded-full mc:px-2 mc:py-1 mc:text-xs mc:font-semibold ${
+                      className={`mc:bg-dark-4 mc:rounded-full mc:px-2 mc:py-1 mc:text-xs mc:font-semibold mc:shrink-0 ${
                         totalPercentage === 100
                           ? "mc:text-cyan"
                           : "mc:text-warning"
@@ -480,8 +490,8 @@ export function PaymentModal({
                       {totalPercentage}/100%
                     </span>
                   </div>
-                  <div className="mc:flex mc:items-center mc:gap-2">
-                    <span className="mc:text-sm mc:text-white">
+                  <div className="mc:flex mc:items-center mc:gap-2 mc:shrink-0">
+                    <span className="mc:text-xs mc:sm:text-sm mc:text-white">
                       Auto Optimize
                     </span>
                     <button
@@ -535,7 +545,7 @@ export function PaymentModal({
               hasInsufficientBalance ||
               hasInvalidPrice
             }
-            className={`mc:w-full mc:lg:w-[620px] mc:h-[42px] mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-sm mc:font-semibold mc:text-white mc:transition-all ${
+            className={`mc:w-full mc:lg:w-[620px] mc:h-[42px] mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-xs mc:sm:text-sm mc:font-semibold mc:text-white mc:transition-all mc:px-2 mc:wrap-break-word ${
               totalPercentage === 100 &&
               !hasInsufficientBalance &&
               !hasInvalidPrice
@@ -543,13 +553,15 @@ export function PaymentModal({
                 : "mc:bg-secondary/50 mc:cursor-not-allowed"
             }`}
           >
-            {hasInvalidPrice
-              ? "Price data unavailable - Please wait"
-              : hasInsufficientBalance
-              ? "Insufficient Balance"
-              : totalPercentage !== 100
-              ? `Complete to 100% (${totalPercentage}%)`
-              : "Pay with MultiCoyn"}
+            <span className="mc:text-center">
+              {hasInvalidPrice
+                ? "Price data unavailable - Please wait"
+                : hasInsufficientBalance
+                ? "Insufficient Balance"
+                : totalPercentage !== 100
+                ? `Complete to 100% (${totalPercentage}%)`
+                : "Pay with MultiCoyn"}
+            </span>
           </button>
         </div>
       )}

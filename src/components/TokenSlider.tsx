@@ -3,18 +3,32 @@ import type { Token } from "./types";
 interface TokenSliderProps {
   token: Token;
   onChange: (percentage: number) => void;
+  totalAmount: number;
 }
 
-export function TokenSlider({ token, onChange }: TokenSliderProps) {
+export function TokenSlider({
+  token,
+  onChange,
+  totalAmount,
+}: TokenSliderProps) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
   };
 
+  const usdValue = (totalAmount * token.percentage) / 100;
+  const tokenAmountNeeded = token.priceUSD > 0 ? usdValue / token.priceUSD : 0;
+  const hasEnoughBalance = tokenAmountNeeded <= token.amount;
+  const hasValidPrice = token.priceUSD > 0;
+
   return (
     <div className="flex items-center gap-1.5 w-full">
-      <div className="flex items-center gap-3 w-[106px]">
+      <div className="flex items-center gap-3 w-35">
         <div className="relative size-[30px]">
-          <div className="size-[30px] rounded-full bg-dark-4 overflow-hidden flex items-center justify-center">
+          <div
+            className={`size-[30px] rounded-full bg-dark-4 overflow-hidden flex items-center justify-center ${
+              !hasValidPrice ? "opacity-50" : ""
+            }`}
+          >
             {token.tokenIcon ? (
               <img
                 src={token.tokenIcon}
@@ -44,7 +58,16 @@ export function TokenSlider({ token, onChange }: TokenSliderProps) {
         <div className="flex flex-col gap-1 text-xs text-white">
           <span className="font-semibold">{token.name}</span>
           <span className="font-normal opacity-75">
-            {token.amount} {token.symbol}
+            {token.amount.toFixed(4)} {token.symbol}
+          </span>
+          <span
+            className={`text-[10px] ${
+              hasValidPrice ? "text-white/50" : "text-yellow-500"
+            }`}
+          >
+            {hasValidPrice
+              ? `$${token.priceUSD.toFixed(2)}/${token.symbol}`
+              : "Price loading..."}
           </span>
         </div>
       </div>
@@ -62,12 +85,25 @@ export function TokenSlider({ token, onChange }: TokenSliderProps) {
           value={token.percentage}
           onChange={handleSliderChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          disabled={token.amount === 0 || !hasValidPrice}
         />
       </div>
 
-      <span className="text-xs font-semibold text-white text-center w-8">
-        {token.percentage}%
-      </span>
+      <div className="flex flex-col items-end gap-0.5 min-w-25">
+        <span className="text-xs font-semibold text-white">
+          {token.percentage}% = ${usdValue.toFixed(2)}
+        </span>
+        {token.percentage > 0 && (
+          <span
+            className={`text-[10px] ${
+              hasEnoughBalance ? "text-white/60" : "text-red-500"
+            }`}
+          >
+            {tokenAmountNeeded.toFixed(4)} {token.symbol}
+            {!hasEnoughBalance && " ⚠️"}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

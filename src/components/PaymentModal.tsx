@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   CloseIcon,
   SearchIcon,
@@ -9,6 +9,8 @@ import {
 import { TokenSlider } from "./TokenSlider";
 import { PaymentSummary } from "./PaymentSummary";
 import type { Token, PaymentItem } from "./types";
+import { TOKENS } from "../config/contracts";
+import { useTokenRegistry } from "../hooks/useTokenRegistry";
 
 type ModalView = "form" | "processing" | "success";
 
@@ -21,6 +23,9 @@ interface PaymentModalProps {
   tokens: Token[];
   onPaymentSubmit: (tokens: Token[]) => void;
   fee?: number;
+  transactionHash?: string;
+  isProcessing?: boolean;
+  isSuccess?: boolean;
 }
 
 export function PaymentModal({
@@ -32,21 +37,99 @@ export function PaymentModal({
   tokens: initialTokens,
   onPaymentSubmit,
   fee = 0.3,
+  transactionHash,
+  isProcessing: externalIsProcessing,
+  isSuccess: externalIsSuccess,
 }: PaymentModalProps) {
-  const [tokens, setTokens] = useState<Token[]>(initialTokens);
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [autoOptimize, setAutoOptimize] = useState(true);
   const [view, setView] = useState<ModalView>("form");
   const [progress, setProgress] = useState(0);
   const [transactionId, setTransactionId] = useState("");
+  const [processingMessage, setProcessingMessage] = useState(
+    "Preparing payment..."
+  );
+  const [approvingTokens, setApprovingTokens] = useState<string[]>([]);
+
+  const tokenRegistry = useTokenRegistry();
+
+  const { data: ethPrice } = tokenRegistry.useGetTokenPrice(TOKENS.NATIVE);
+  const { data: usdcPrice } = tokenRegistry.useGetTokenPrice(TOKENS.USDC);
+  const { data: usdtPrice } = tokenRegistry.useGetTokenPrice(TOKENS.USDT);
+  const { data: daiPrice } = tokenRegistry.useGetTokenPrice(TOKENS.DAI);
+  const { data: wbtcPrice } = tokenRegistry.useGetTokenPrice(TOKENS.WBTC);
+
+  const USD_SCALE = 1e8;
+
+  const tokenKey = useMemo(
+    () =>
+      JSON.stringify(
+        initialTokens.map((t) => ({
+          id: t.id,
+          amount: t.amount,
+          priceUSD: t.priceUSD,
+        }))
+      ),
+    [initialTokens]
+  );
+
+  // Helper to extract price from tuple [price, timestamp]
+  const extractPrice = (priceData: unknown): number => {
+    if (!priceData) return 0;
+    if (Array.isArray(priceData) && priceData.length >= 1) {
+      const price = priceData[0];
+      if (typeof price === "bigint") {
+        return Number(price) / USD_SCALE;
+      }
+    }
+    return 0;
+  };
 
   useEffect(() => {
-    setTokens(initialTokens);
-  }, [initialTokens]);
+    if (isOpen && initialTokens.length > 0) {
+      const updatedTokens = initialTokens.map((t) => {
+        let updatedPrice = t.priceUSD;
+
+        if (t.address === TOKENS.NATIVE && ethPrice) {
+          updatedPrice = extractPrice(ethPrice);
+        } else if (t.address === TOKENS.USDC && usdcPrice) {
+          updatedPrice = extractPrice(usdcPrice);
+        } else if (t.address === TOKENS.USDT && usdtPrice) {
+          updatedPrice = extractPrice(usdtPrice);
+        } else if (t.address === TOKENS.DAI && daiPrice) {
+          updatedPrice = extractPrice(daiPrice);
+        } else if (t.address === TOKENS.WBTC && wbtcPrice) {
+          updatedPrice = extractPrice(wbtcPrice);
+        }
+
+        return { ...t, priceUSD: updatedPrice };
+      });
+
+      if (autoOptimize) {
+        const activeTokens = updatedTokens.filter(
+          (t) => t.amount > 0 && t.priceUSD > 0
+        );
+        if (activeTokens.length > 0) {
+          const perToken = Math.floor(100 / activeTokens.length);
+          const remainder = 100 - perToken * activeTokens.length;
+
+          updatedTokens.forEach((t, i) => {
+            t.percentage =
+              t.amount > 0 && t.priceUSD > 0
+                ? perToken + (i === 0 ? remainder : 0)
+                : 0;
+          });
+        }
+      }
+
+      setTokens(updatedTokens);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, tokenKey, ethPrice, usdcPrice, usdtPrice, daiPrice, wbtcPrice]);
 
   useEffect(() => {
     if (!isOpen) {
-      // Reset state when modal closes
       setView("form");
       setProgress(0);
       setTransactionId("");
@@ -54,27 +137,32 @@ export function PaymentModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (view === "processing") {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTransactionId(
-              `#ID${Math.random().toString(36).substring(2, 12).toUpperCase()}`
-            );
-            setView("success");
-            return 100;
-          }
-          return prev + Math.random() * 15;
-        });
-      }, 300);
-
-      return () => clearInterval(interval);
+    if (externalIsSuccess && transactionHash) {
+      setProgress(100);
+      setTransactionId(transactionHash);
+      setView("success");
+      setProcessingMessage("Payment completed!");
+    } else if (externalIsProcessing) {
+      setProgress(80);
+      setProcessingMessage("Confirming transaction...");
     }
-  }, [view]);
+  }, [externalIsSuccess, externalIsProcessing, transactionHash]);
 
   const totalPercentage = tokens.reduce((sum, t) => sum + t.percentage, 0);
   const totalPayment = items.reduce((sum, item) => sum + item.price, 0) + fee;
+
+  const hasInvalidPrice = tokens.some((token) => {
+    if (token.percentage === 0) return false;
+    return !token.priceUSD || token.priceUSD <= 0;
+  });
+
+  const hasInsufficientBalance = tokens.some((token) => {
+    if (token.percentage === 0) return false;
+    const usdValue = (totalAmount * token.percentage) / 100;
+    const tokenAmountNeeded =
+      token.priceUSD > 0 ? usdValue / token.priceUSD : 0;
+    return tokenAmountNeeded > token.amount;
+  });
 
   const handleTokenChange = (tokenId: string, percentage: number) => {
     setTokens((prev) =>
@@ -84,14 +172,18 @@ export function PaymentModal({
 
   const handleAutoOptimize = () => {
     if (!autoOptimize) {
-      const activeTokens = tokens.filter((t) => t.amount > 0);
+      // Only consider tokens with valid balance AND valid price
+      const activeTokens = tokens.filter((t) => t.amount > 0 && t.priceUSD > 0);
       const perToken = Math.floor(100 / activeTokens.length);
       const remainder = 100 - perToken * activeTokens.length;
 
       setTokens((prev) =>
         prev.map((t, i) => ({
           ...t,
-          percentage: t.amount > 0 ? perToken + (i === 0 ? remainder : 0) : 0,
+          percentage:
+            t.amount > 0 && t.priceUSD > 0
+              ? perToken + (i === 0 ? remainder : 0)
+              : 0,
         }))
       );
     }
@@ -105,9 +197,28 @@ export function PaymentModal({
       t.chain.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setView("processing");
+    setProgress(10);
+    setProcessingMessage("Checking token approvals...");
+
+    const tokensToApprove = tokens.filter(
+      (t) => t.percentage > 0 && t.address !== TOKENS.NATIVE
+    );
+
+    if (tokensToApprove.length > 0) {
+      setProcessingMessage(
+        `Requesting approval for ${tokensToApprove.length} token(s)...`
+      );
+      setApprovingTokens(tokensToApprove.map((t) => t.symbol));
+    }
+
+    setProgress(30);
+    setProcessingMessage("Processing payment...");
+
     onPaymentSubmit(tokens);
+
+    setProgress(60);
   };
 
   const handleBackToHome = () => {
@@ -133,7 +244,7 @@ export function PaymentModal({
       />
 
       {view === "processing" && (
-        <div className="relative bg-dark-2 border border-border rounded-xl p-4 flex flex-col gap-5 items-center justify-center w-[400px] h-[280px] mx-4 animate-slide-in-right">
+        <div className="relative bg-dark-2 border border-border rounded-xl p-4 flex flex-col gap-5 items-center justify-center w-[400px] min-h-[280px] mx-4 animate-slide-in-right">
           <ProcessingIcon size={134} />
           <div className="flex flex-col gap-3 items-center w-[300px]">
             <div className="relative w-[234px] h-1.5">
@@ -144,8 +255,13 @@ export function PaymentModal({
               />
             </div>
             <p className="text-sm text-white text-center">
-              Please wait, payment Processed..
+              {processingMessage}
             </p>
+            {approvingTokens.length > 0 && (
+              <div className="text-xs text-white/60 text-center">
+                Approving: {approvingTokens.join(", ")}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -186,7 +302,16 @@ export function PaymentModal({
 
           <div className="flex flex-col gap-2 items-center justify-center w-full text-xs text-white px-5">
             <p>{formatDate()}</p>
-            <p>Transaction ID {transactionId}</p>
+            {transactionId && (
+              <a
+                href={`https://sepolia-blockscout.lisk.com/tx/${transactionId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan hover:underline"
+              >
+                View Transaction
+              </a>
+            )}
           </div>
 
           <button
@@ -280,6 +405,7 @@ export function PaymentModal({
                   <TokenSlider
                     key={token.id}
                     token={token}
+                    totalAmount={totalAmount}
                     onChange={(percentage) =>
                       handleTokenChange(token.id, percentage)
                     }
@@ -297,14 +423,26 @@ export function PaymentModal({
           {/* Pay Button */}
           <button
             onClick={handleSubmit}
-            disabled={totalPercentage !== 100}
+            disabled={
+              totalPercentage !== 100 ||
+              hasInsufficientBalance ||
+              hasInvalidPrice
+            }
             className={`w-full lg:w-[620px] h-[42px] rounded-lg flex items-center justify-center text-sm font-semibold text-white transition-all ${
-              totalPercentage === 100
+              totalPercentage === 100 &&
+              !hasInsufficientBalance &&
+              !hasInvalidPrice
                 ? "bg-secondary hover:bg-secondary/90"
                 : "bg-secondary/50 cursor-not-allowed"
             }`}
           >
-            Pay with MultiCoyn
+            {hasInvalidPrice
+              ? "Price data unavailable - Please wait"
+              : hasInsufficientBalance
+              ? "Insufficient Balance"
+              : totalPercentage !== 100
+              ? `Complete to 100% (${totalPercentage}%)`
+              : "Pay with MultiCoyn"}
           </button>
         </div>
       )}

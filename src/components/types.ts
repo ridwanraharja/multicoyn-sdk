@@ -7,6 +7,10 @@ export interface Token {
   chainIcon?: string;
   tokenIcon?: string;
   percentage: number;
+  address: `0x${string}`;
+  decimals: number;
+  priceUSD: number;
+  isApproved?: boolean;
 }
 
 export interface PaymentItem {

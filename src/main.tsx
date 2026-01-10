@@ -2,9 +2,15 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
+import { Web3Provider } from "./providers/Web3Provider";
+import { PaymentProvider } from "./providers/PaymentProvider";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <Web3Provider>
+      <PaymentProvider>
+        <App />
+      </PaymentProvider>
+    </Web3Provider>
   </StrictMode>
 );

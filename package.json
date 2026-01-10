@@ -1,6 +1,6 @@
 {
   "name": "multicoyn-sdk",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Multicoyn SDK for Web3 payments",
   "type": "module",
   "main": "./dist/index.cjs",

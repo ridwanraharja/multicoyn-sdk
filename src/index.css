@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" prefix(mc);
 
 @theme {
   /* 4 Main Background Colors (Dark Theme - from Figma) */
@@ -44,49 +44,6 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
   --radius-full: 9999px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  font-family: var(--font-sans);
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: var(--color-dark-1);
-  color: var(--color-white);
-}
-
-body.light {
-  background-color: var(--color-light-1);
-  color: var(--color-dark);
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-dark-2);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-dark-4);
-  border-radius: var(--radius-full);
-}
-
-body.light ::-webkit-scrollbar-track {
-  background: var(--color-light-2);
-}
-
-body.light ::-webkit-scrollbar-thumb {
-  background: var(--color-light-4);
 }
 
 @keyframes slide-in-right {

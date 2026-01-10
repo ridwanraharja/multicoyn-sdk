@@ -329,28 +329,28 @@ export function PaymentModal({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="multicoyn-sdk fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="multicoyn-sdk mc:fixed mc:inset-0 mc:z-[9999] mc:flex mc:items-center mc:justify-center">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="mc:absolute mc:inset-0 mc:bg-black/60 mc:backdrop-blur-sm"
         onClick={view === "form" ? onClose : undefined}
       />
 
       {view === "processing" && (
-        <div className="relative bg-dark-2 border border-border rounded-xl p-4 flex flex-col gap-5 items-center justify-center w-[400px] min-h-[280px] mx-4 animate-slide-in-right">
+        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-5 mc:items-center mc:justify-center mc:w-[400px] mc:min-h-[280px] mc:mx-4 animate-slide-in-right">
           <ProcessingIcon size={134} />
-          <div className="flex flex-col gap-3 items-center w-[300px]">
-            <div className="relative w-[234px] h-1.5">
-              <div className="absolute inset-0 bg-dark-4 rounded-full" />
+          <div className="mc:flex mc:flex-col mc:gap-3 mc:items-center mc:w-[300px]">
+            <div className="mc:relative mc:w-[234px] mc:h-1.5">
+              <div className="mc:absolute mc:inset-0 mc:bg-dark-4 mc:rounded-full" />
               <div
-                className="absolute left-0 top-0 h-full bg-secondary rounded-full transition-all duration-300"
+                className="mc:absolute mc:left-0 mc:top-0 mc:h-full mc:bg-secondary mc:rounded-full mc:transition-all mc:duration-300"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <p className="text-sm text-white text-center">
+            <p className="mc:text-sm mc:text-white mc:text-center">
               {processingMessage}
             </p>
             {approvingTokens.length > 0 && (
-              <div className="text-xs text-white/60 text-center">
+              <div className="mc:text-xs mc:text-white/60 mc:text-center">
                 Approving: {approvingTokens.join(", ")}
               </div>
             )}
@@ -359,30 +359,30 @@ export function PaymentModal({
       )}
 
       {view === "success" && (
-        <div className="relative bg-dark-2 border border-border rounded-xl p-4 flex flex-col gap-8 items-start w-[380px] mx-4 animate-slide-in-right">
-          <div className="flex flex-col gap-6 items-center w-full">
+        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-8 mc:items-start mc:w-[380px] mc:mx-4 animate-slide-in-right">
+          <div className="mc:flex mc:flex-col mc:gap-6 mc:items-center mc:w-full">
             <SuccessIcon size={95} />
-            <div className="flex flex-col items-center justify-center w-full">
-              <div className="flex flex-col gap-1 items-center text-white">
-                <p className="text-lg font-semibold">Payment Success</p>
-                <p className="text-sm">
+            <div className="mc:flex mc:flex-col mc:items-center mc:justify-center mc:w-full">
+              <div className="mc:flex mc:flex-col mc:gap-1 mc:items-center mc:text-white">
+                <p className="mc:text-lg mc:font-semibold">Payment Success</p>
+                <p className="mc:text-sm">
                   Your payment has been successfully done.
                 </p>
               </div>
             </div>
 
-            <div className="bg-dark-4 border border-white/10 rounded-lg py-3 px-0 w-[348px] flex flex-col items-center">
-              <div className="flex flex-col gap-2 w-[318px]">
-                <p className="text-xs text-white">Order Details:</p>
-                <div className="flex items-center gap-8 text-sm text-white w-full">
-                  <span className="w-[85px]">Item</span>
-                  <span className="flex-1 text-right">
+            <div className="mc:bg-dark-4 mc:border mc:border-white/10 mc:rounded-lg mc:py-3 mc:px-0 mc:w-[348px] mc:flex mc:flex-col mc:items-center">
+              <div className="mc:flex mc:flex-col mc:gap-2 mc:w-[318px]">
+                <p className="mc:text-xs mc:text-white">Order Details:</p>
+                <div className="mc:flex mc:items-center mc:gap-8 mc:text-sm mc:text-white mc:w-full">
+                  <span className="mc:w-[85px]">Item</span>
+                  <span className="mc:flex-1 mc:text-right">
                     {items[0]?.name || "Item"}
                   </span>
                 </div>
-                <div className="flex items-center gap-8 text-white w-full">
-                  <span className="text-sm w-[106px]">Total Payment</span>
-                  <span className="flex-1 text-base font-semibold text-right">
+                <div className="mc:flex mc:items-center mc:gap-8 mc:text-white mc:w-full">
+                  <span className="mc:text-sm mc:w-[106px]">Total Payment</span>
+                  <span className="mc:flex-1 mc:text-base mc:font-semibold mc:text-right">
                     {formatNumberWithCommas(displayTotalPayment)}{" "}
                     {displayCurrency}
                   </span>
@@ -391,16 +391,16 @@ export function PaymentModal({
             </div>
           </div>
 
-          <div className="h-px w-[320px] bg-white/20" />
+          <div className="mc:h-px mc:w-[320px] mc:bg-white/20" />
 
-          <div className="flex flex-col gap-2 items-center justify-center w-full text-xs text-white px-5">
+          <div className="mc:flex mc:flex-col mc:gap-2 mc:items-center mc:justify-center mc:w-full mc:text-xs mc:text-white mc:px-5">
             <p>{formatDate()}</p>
             {transactionId && (
               <a
                 href={`https://sepolia-blockscout.lisk.com/tx/${transactionId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-cyan hover:underline"
+                className="mc:text-cyan hover:mc:underline"
               >
                 View Transaction
               </a>
@@ -409,7 +409,7 @@ export function PaymentModal({
 
           <button
             onClick={handleBackToHome}
-            className="w-full h-[42px] bg-secondary hover:bg-secondary/90 rounded-lg flex items-center justify-center text-sm font-semibold text-white transition-all"
+            className="mc:w-full mc:h-[42px] mc:bg-secondary hover:mc:bg-secondary/90 mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-sm mc:font-semibold mc:text-white mc:transition-all"
           >
             Back to Home
           </button>
@@ -417,78 +417,84 @@ export function PaymentModal({
       )}
 
       {view === "form" && (
-        <div className="relative bg-dark-2 border border-border rounded-xl p-4 flex flex-col gap-5 max-w-[1000px] w-full mx-4 max-h-[90vh] overflow-y-auto animate-slide-in-right">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 flex flex-col gap-1">
-              <h2 className="text-xl text-white font-normal">
+        <div className="mc:relative mc:bg-dark-2 mc:border mc:border-border mc:rounded-xl mc:p-4 mc:flex mc:flex-col mc:gap-5 mc:max-w-[1000px] mc:w-full mc:mx-4 mc:max-h-[90vh] mc:overflow-y-auto animate-slide-in-right">
+          <div className="mc:flex mc:items-center mc:gap-4">
+            <div className="mc:flex-1 mc:flex mc:flex-col mc:gap-1">
+              <h2 className="mc:text-xl mc:text-white mc:font-normal">
                 Complete Payment
               </h2>
-              <p className="text-base text-white/70">
+              <p className="mc:text-base mc:text-white/70">
                 Choose how you want to pay (supports multi-token for wallets)
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-white/60 hover:text-white transition-colors"
+              className="mc:text-white/60 hover:mc:text-white mc:transition-colors"
             >
               <CloseIcon size={26} />
             </button>
           </div>
 
-          <div className="flex gap-5 flex-col lg:flex-row">
-            <div className="flex-1 flex flex-col gap-5">
-              <div className="bg-dark-4 rounded-md p-4 flex items-center gap-5">
-                <span className="text-base text-white/60 w-[340px]">
+          <div className="mc:flex mc:gap-5 mc:flex-col mc:lg:flex-row">
+            <div className="mc:flex-1 mc:flex mc:flex-col mc:gap-5">
+              <div className="mc:bg-dark-4 mc:rounded-md mc:p-4 mc:flex mc:items-center mc:gap-5">
+                <span className="mc:text-base mc:text-white/60 mc:w-[340px]">
                   Total Required
                 </span>
-                <span className="text-xl font-bold text-white text-right flex-1">
+                <span className="mc:text-xl mc:font-bold mc:text-white mc:text-right mc:flex-1">
                   {formatNumberWithCommas(displayTotalPayment)}{" "}
                   {displayCurrency}
                 </span>
               </div>
 
-              <div className="flex items-center gap-5">
-                <span className="text-base text-white flex-1">
+              <div className="mc:flex mc:items-center mc:gap-5">
+                <span className="mc:text-base mc:text-white mc:flex-1">
                   Use your tokens
                 </span>
-                <div className="bg-dark-4 rounded-md px-3 py-2 flex items-center gap-2">
-                  <SearchIcon size={16} className="text-white/60" />
+                <div className="mc:bg-dark-4 mc:rounded-md mc:px-3 mc:py-2 mc:flex mc:items-center mc:gap-2">
+                  <SearchIcon size={16} className="mc:text-white/60" />
                   <input
                     type="text"
                     placeholder="Search token or chain.."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-transparent border-none outline-none text-base text-white/60 placeholder:text-white/60"
+                    className="mc:bg-transparent mc:border-none mc:outline-none mc:text-base mc:text-white/60 placeholder:mc:text-white/60"
                   />
                 </div>
               </div>
 
-              <div className="bg-dark-3 rounded-md p-3 flex flex-col gap-4">
-                <div className="flex items-center gap-6">
-                  <div className="flex-1 flex items-center gap-2">
-                    <InfoIcon size={16} className="text-white/60" />
-                    <span className="text-sm italic text-white">
+              <div className="mc:bg-dark-3 mc:rounded-md mc:p-3 mc:flex mc:flex-col mc:gap-4">
+                <div className="mc:flex mc:items-center mc:gap-6">
+                  <div className="mc:flex-1 mc:flex mc:items-center mc:gap-2">
+                    <InfoIcon size={16} className="mc:text-white/60" />
+                    <span className="mc:text-sm mc:italic mc:text-white">
                       Set the coins amount until 100%
                     </span>
                     <span
-                      className={`bg-dark-4 rounded-full px-2 py-1 text-xs font-semibold ${
-                        totalPercentage === 100 ? "text-cyan" : "text-warning"
+                      className={`mc:bg-dark-4 mc:rounded-full mc:px-2 mc:py-1 mc:text-xs mc:font-semibold ${
+                        totalPercentage === 100
+                          ? "mc:text-cyan"
+                          : "mc:text-warning"
                       }`}
                     >
                       {totalPercentage}/100%
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-white">Auto Optimize</span>
+                  <div className="mc:flex mc:items-center mc:gap-2">
+                    <span className="mc:text-sm mc:text-white">
+                      Auto Optimize
+                    </span>
                     <button
                       onClick={handleAutoOptimize}
-                      className={`w-7 h-4 rounded-full relative transition-colors ${
-                        autoOptimize ? "bg-cyan" : "bg-white/40"
+                      className={`mc:w-7 mc:h-4 mc:rounded-full mc:relative mc:transition-colors ${
+                        autoOptimize ? "mc:bg-cyan" : "mc:bg-white/40"
                       }`}
                     >
                       <div
-                        className={`absolute top-0.5 size-3 rounded-full bg-white transition-transform ${
-                          autoOptimize ? "translate-x-3.5" : "translate-x-0.5"
+                        className={`mc:absolute mc:top-0.5 mc:size-3 mc:rounded-full mc:bg-white mc:transition-transform ${
+                          autoOptimize
+                            ? "mc:translate-x-3.5"
+                            : "mc:translate-x-0.5"
                         }`}
                       />
                     </button>
@@ -512,7 +518,7 @@ export function PaymentModal({
             </div>
 
             {/* Right Side - Payment Summary */}
-            <div className="w-full lg:w-[320px]">
+            <div className="mc:w-full mc:lg:w-[320px]">
               <PaymentSummary
                 items={displayItems}
                 fee={displayTotalFee}
@@ -529,12 +535,12 @@ export function PaymentModal({
               hasInsufficientBalance ||
               hasInvalidPrice
             }
-            className={`w-full lg:w-[620px] h-[42px] rounded-lg flex items-center justify-center text-sm font-semibold text-white transition-all ${
+            className={`mc:w-full mc:lg:w-[620px] mc:h-[42px] mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-sm mc:font-semibold mc:text-white mc:transition-all ${
               totalPercentage === 100 &&
               !hasInsufficientBalance &&
               !hasInvalidPrice
-                ? "bg-secondary hover:bg-secondary/90"
-                : "bg-secondary/50 cursor-not-allowed"
+                ? "mc:bg-secondary hover:mc:bg-secondary/90"
+                : "mc:bg-secondary/50 mc:cursor-not-allowed"
             }`}
           >
             {hasInvalidPrice

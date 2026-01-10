@@ -192,7 +192,7 @@ export function MulticoynButton({
       <button
         onClick={handleClick}
         disabled={balancesLoading || pricesLoading}
-        className={`bg-secondary hover:bg-secondary/90 text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`mc:bg-secondary hover:mc:bg-secondary/90 mc:text-white mc:font-semibold mc:py-3 mc:px-6 mc:rounded-lg mc:transition-all disabled:mc:opacity-50 disabled:mc:cursor-not-allowed ${className}`}
       >
         {children ||
           (isConnected ? "Pay with MultiCoyn" : "Connect Wallet to Pay")}

@@ -14,19 +14,19 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-1 flex flex-col items-center justify-center p-8">
-      <div className="absolute top-4 right-4">
+    <div className="mc:min-h-screen mc:bg-dark-1 mc:flex mc:flex-col mc:items-center mc:justify-center mc:p-8">
+      <div className="mc:absolute mc:top-4 mc:right-4">
         <ConnectButton />
       </div>
 
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
+      <div className="mc:text-center mc:mb-8">
+        <h1 className="mc:text-3xl mc:font-bold mc:text-white mc:mb-2">
           MultiCoyn SDK Demo
         </h1>
-        <p className="text-white/70 mb-2">
+        <p className="mc:text-white/70 mc:mb-2">
           Test multi-token payment with real blockchain transactions
         </p>
-        <p className="text-white/50 text-sm">Network: Lisk Sepolia Testnet</p>
+        <p className="mc:text-white/50 mc:text-sm">Network: Lisk Sepolia Testnet</p>
       </div>
 
       <MulticoynButton
@@ -37,13 +37,13 @@ function App() {
         onPaymentError={handlePaymentError}
       />
 
-      <div className="mt-8 text-white/40 text-xs text-center">
+      <div className="mc:mt-8 mc:text-white/40 mc:text-xs mc:text-center">
         <p>Need test tokens?</p>
         <a
           href="https://sepolia-faucet.lisk.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-cyan hover:underline"
+          className="mc:text-cyan mc:hover:underline"
         >
           Get from Lisk Sepolia Faucet
         </a>

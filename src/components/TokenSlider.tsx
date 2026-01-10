@@ -32,48 +32,48 @@ export function TokenSlider({
   const displayValue = (amountToShow * token.percentage) / 100;
 
   return (
-    <div className="flex items-center gap-1.5 w-full">
-      <div className="flex items-center gap-3 w-35">
-        <div className="relative size-[30px]">
+    <div className="mc:flex mc:items-center mc:gap-1.5 mc:w-full">
+      <div className="mc:flex mc:items-center mc:gap-3 mc:w-35">
+        <div className="mc:relative mc:size-[30px]">
           <div
-            className={`size-[30px] rounded-full bg-dark-4 overflow-hidden flex items-center justify-center ${
-              !hasValidPrice ? "opacity-50" : ""
+            className={`mc:size-[30px] mc:rounded-full mc:bg-dark-4 mc:overflow-hidden mc:flex mc:items-center mc:justify-center ${
+              !hasValidPrice ? "mc:opacity-50" : ""
             }`}
           >
             {token.tokenIcon ? (
               <img
                 src={token.tokenIcon}
                 alt={token.name}
-                className="size-full object-cover"
+                className="mc:size-full mc:object-cover"
               />
             ) : (
-              <span className="text-xs font-semibold text-white">
+              <span className="mc:text-xs mc:font-semibold mc:text-white">
                 {token.symbol.slice(0, 2)}
               </span>
             )}
           </div>
-          <div className="absolute right-[-2px] bottom-[-2px] size-[12px] rounded-full bg-dark-3 border border-dark-2 overflow-hidden flex items-center justify-center">
+          <div className="mc:absolute mc:right-[-2px] mc:bottom-[-2px] mc:size-[12px] mc:rounded-full mc:bg-dark-3 mc:border mc:border-dark-2 mc:overflow-hidden mc:flex mc:items-center mc:justify-center">
             {token.chainIcon ? (
               <img
                 src={token.chainIcon}
                 alt={token.chain}
-                className="size-full object-cover"
+                className="mc:size-full mc:object-cover"
               />
             ) : (
-              <span className="text-[6px] font-semibold text-white">
+              <span className="mc:text-[6px] mc:font-semibold mc:text-white">
                 {token.chain.slice(0, 1)}
               </span>
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-1 text-xs text-white">
-          <span className="font-semibold">{token.name}</span>
-          <span className="font-normal opacity-75">
+        <div className="mc:flex mc:flex-col mc:gap-1 mc:text-xs mc:text-white">
+          <span className="mc:font-semibold">{token.name}</span>
+          <span className="mc:font-normal mc:opacity-75">
             {token.amount.toFixed(4)} {token.symbol}
           </span>
           <span
-            className={`text-[10px] ${
-              hasValidPrice ? "text-white/50" : "text-yellow-500"
+            className={`mc:text-[10px] ${
+              hasValidPrice ? "mc:text-white/50" : "mc:text-yellow-500"
             }`}
           >
             {hasValidPrice
@@ -83,10 +83,14 @@ export function TokenSlider({
         </div>
       </div>
 
-      <div className={`flex-1 relative h-1.5 ${disabled ? 'opacity-50' : ''}`}>
-        <div className="absolute inset-0 bg-white/40 rounded-full" />
+      <div
+        className={`mc:flex-1 mc:relative mc:h-1.5 ${
+          disabled ? "mc:opacity-50" : ""
+        }`}
+      >
+        <div className="mc:absolute mc:inset-0 mc:bg-white/40 mc:rounded-full" />
         <div
-          className="absolute left-0 top-0 h-full bg-secondary rounded-full transition-all"
+          className="mc:absolute mc:left-0 mc:top-0 mc:h-full mc:bg-secondary mc:rounded-full mc:transition-all"
           style={{ width: `${token.percentage}%` }}
         />
         <input
@@ -95,19 +99,22 @@ export function TokenSlider({
           max="100"
           value={token.percentage}
           onChange={handleSliderChange}
-          className={`absolute inset-0 w-full h-full opacity-0 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`mc:absolute mc:inset-0 mc:w-full mc:h-full mc:opacity-0 ${
+            disabled ? "mc:cursor-not-allowed" : "mc:cursor-pointer"
+          }`}
           disabled={disabled || token.amount === 0 || !hasValidPrice}
         />
       </div>
 
-      <div className="flex flex-col items-end gap-0.5 min-w-25">
-        <span className="text-xs font-semibold text-white">
-          {token.percentage}% = {formatNumberWithCommas(displayValue)} {displayCurrency}
+      <div className="mc:flex mc:flex-col mc:items-end mc:gap-0.5 mc:min-w-25">
+        <span className="mc:text-xs mc:font-semibold mc:text-white">
+          {token.percentage}% = {formatNumberWithCommas(displayValue)}{" "}
+          {displayCurrency}
         </span>
         {token.percentage > 0 && (
           <span
-            className={`text-[10px] ${
-              hasEnoughBalance ? "text-white/60" : "text-red-500"
+            className={`mc:text-[10px] ${
+              hasEnoughBalance ? "mc:text-white/60" : "mc:text-red-500"
             }`}
           >
             {formatNumberWithCommas(tokenAmountNeeded, 4)} {token.symbol}

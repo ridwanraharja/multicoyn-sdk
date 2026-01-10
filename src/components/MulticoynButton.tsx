@@ -106,6 +106,7 @@ export function MulticoynButton({
           address: TOKENS.NATIVE,
           decimals: TOKEN_METADATA.ETH.decimals,
           priceUSD: prices.ETH,
+          tokenIcon: TOKEN_METADATA.ETH.logo,
         },
         {
           id: "usdc",
@@ -117,6 +118,7 @@ export function MulticoynButton({
           address: TOKENS.USDC,
           decimals: TOKEN_METADATA.USDC.decimals,
           priceUSD: prices.USDC,
+          tokenIcon: TOKEN_METADATA.USDC.logo,
         },
         {
           id: "usdt",
@@ -128,6 +130,7 @@ export function MulticoynButton({
           address: TOKENS.USDT,
           decimals: TOKEN_METADATA.USDT.decimals,
           priceUSD: prices.USDT,
+          tokenIcon: TOKEN_METADATA.USDT.logo,
         },
         {
           id: "dai",
@@ -139,6 +142,7 @@ export function MulticoynButton({
           address: TOKENS.DAI,
           decimals: TOKEN_METADATA.DAI.decimals,
           priceUSD: prices.DAI,
+          tokenIcon: TOKEN_METADATA.DAI.logo,
         },
         {
           id: "wbtc",
@@ -150,6 +154,7 @@ export function MulticoynButton({
           address: TOKENS.WBTC,
           decimals: TOKEN_METADATA.WBTC.decimals,
           priceUSD: prices.WBTC,
+          tokenIcon: TOKEN_METADATA.WBTC.logo,
         },
       ];
       setTokens(tokenList);

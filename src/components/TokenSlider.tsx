@@ -44,7 +44,7 @@ export function TokenSlider({
               <img
                 src={token.tokenIcon}
                 alt={token.name}
-                className="mc:size-full mc:object-cover"
+                className="mc:size-full mc:object-contain"
               />
             ) : (
               <span className="mc:text-xs mc:font-semibold mc:text-white">

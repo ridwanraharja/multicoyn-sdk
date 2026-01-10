@@ -429,6 +429,7 @@ export function PaymentModal({
                     onChange={(percentage) =>
                       handleTokenChange(token.id, percentage)
                     }
+                    disabled={autoOptimize}
                   />
                 ))}
               </div>

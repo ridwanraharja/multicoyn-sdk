@@ -7,6 +7,7 @@ interface TokenSliderProps {
   totalAmount: number; // USD amount for calculating token needed
   displayAmount?: number; // Original amount for display
   currency?: string;
+  disabled?: boolean;
 }
 
 export function TokenSlider({
@@ -15,6 +16,7 @@ export function TokenSlider({
   totalAmount,
   displayAmount,
   currency,
+  disabled = false,
 }: TokenSliderProps) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
@@ -81,7 +83,7 @@ export function TokenSlider({
         </div>
       </div>
 
-      <div className="flex-1 relative h-1.5">
+      <div className={`flex-1 relative h-1.5 ${disabled ? 'opacity-50' : ''}`}>
         <div className="absolute inset-0 bg-white/40 rounded-full" />
         <div
           className="absolute left-0 top-0 h-full bg-secondary rounded-full transition-all"
@@ -93,8 +95,8 @@ export function TokenSlider({
           max="100"
           value={token.percentage}
           onChange={handleSliderChange}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          disabled={token.amount === 0 || !hasValidPrice}
+          className={`absolute inset-0 w-full h-full opacity-0 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          disabled={disabled || token.amount === 0 || !hasValidPrice}
         />
       </div>
 

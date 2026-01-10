@@ -557,7 +557,7 @@ export function PaymentModal({
               hasInsufficientBalance ||
               hasInvalidPrice
             }
-            className={`mc:w-full mc:lg:w-[620px] mc:h-[42px] mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-xs mc:sm:text-sm mc:font-semibold mc:text-white mc:transition-all mc:px-2 mc:wrap-break-word ${
+            className={`mc:w-full mc:lg:w-[620px] mc:min-h-[42px] mc:rounded-lg mc:flex mc:items-center mc:justify-center mc:text-xs mc:sm:text-sm mc:font-semibold mc:text-white mc:transition-all mc:px-2 mc:wrap-break-word ${
               totalPercentage === 100 &&
               !hasInsufficientBalance &&
               !hasInvalidPrice

@@ -110,25 +110,100 @@ export function PaymentModal({
       });
 
       if (autoOptimize) {
-        const activeTokens = updatedTokens.filter(
-          (t) => t.amount > 0 && t.priceUSD > 0
-        );
-        if (activeTokens.length > 0) {
-          const perToken = Math.floor(100 / activeTokens.length);
-          const remainder = 100 - perToken * activeTokens.length;
+        updatedTokens.forEach((t) => {
+          t.percentage = 0;
+        });
 
-          updatedTokens.forEach((t, i) => {
-            t.percentage =
-              t.amount > 0 && t.priceUSD > 0
-                ? perToken + (i === 0 ? remainder : 0)
-                : 0;
+        const totalPayment = totalAmount + fee * totalAmount;
+
+        const stablecoins = updatedTokens.filter(
+          (t) =>
+            (t.address === TOKENS.USDC ||
+              t.address === TOKENS.USDT ||
+              t.address === TOKENS.DAI) &&
+            t.amount > 0 &&
+            t.priceUSD > 0
+        );
+
+        const otherTokens = updatedTokens.filter(
+          (t) =>
+            t.address !== TOKENS.USDC &&
+            t.address !== TOKENS.USDT &&
+            t.address !== TOKENS.DAI &&
+            t.amount > 0 &&
+            t.priceUSD > 0
+        );
+
+        const totalStablecoinBalanceUSD = stablecoins.reduce(
+          (sum, t) => sum + t.amount * t.priceUSD,
+          0
+        );
+
+        if (
+          stablecoins.length > 0 &&
+          totalStablecoinBalanceUSD >= totalPayment
+        ) {
+          const perToken = Math.floor(100 / stablecoins.length);
+          const remainder = 100 - perToken * stablecoins.length;
+
+          stablecoins.forEach((t, i) => {
+            t.percentage = perToken + (i === 0 ? remainder : 0);
           });
+        } else if (stablecoins.length > 0) {
+          const stablecoinPercentage =
+            (totalStablecoinBalanceUSD / totalPayment) * 100;
+          const perStablecoin = Math.floor(
+            stablecoinPercentage / stablecoins.length
+          );
+
+          stablecoins.forEach((t) => {
+            t.percentage = perStablecoin;
+          });
+
+          const usedPercentage = stablecoins.reduce(
+            (sum, t) => sum + t.percentage,
+            0
+          );
+          const remainingPercentage = 100 - usedPercentage;
+
+          if (otherTokens.length > 0 && remainingPercentage > 0) {
+            const perOtherToken = Math.floor(
+              remainingPercentage / otherTokens.length
+            );
+            const otherRemainder =
+              remainingPercentage - perOtherToken * otherTokens.length;
+
+            otherTokens.forEach((t, i) => {
+              t.percentage = perOtherToken + (i === 0 ? otherRemainder : 0);
+            });
+          }
+        } else {
+          const activeTokens = updatedTokens.filter(
+            (t) => t.amount > 0 && t.priceUSD > 0
+          );
+          if (activeTokens.length > 0) {
+            const perToken = Math.floor(100 / activeTokens.length);
+            const remainder = 100 - perToken * activeTokens.length;
+
+            activeTokens.forEach((t, i) => {
+              t.percentage = perToken + (i === 0 ? remainder : 0);
+            });
+          }
         }
       }
 
       setTokens(updatedTokens);
     }
-  }, [isOpen, tokenKey, ethPrice, usdcPrice, usdtPrice, daiPrice, wbtcPrice]);
+  }, [
+    isOpen,
+    tokenKey,
+    ethPrice,
+    usdcPrice,
+    usdtPrice,
+    daiPrice,
+    wbtcPrice,
+    autoOptimize,
+  ]);
 
   useEffect(() => {
     if (!isOpen) {
